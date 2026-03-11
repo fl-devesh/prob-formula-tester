@@ -1,0 +1,1964 @@
+{
+  "PROBABILITY_VINTAGE_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(COMPANY_AGE_CM - MINIMUM_COMPANY_AGE_PEC) / abs(MINIMUM_COMPANY_AGE_PEC) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(COMPANY_AGE_CM), isNull(MINIMUM_COMPANY_AGE_PEC)), 0, resultFromFormulaEvalStep4)"
+      ],
+      "fields": [
+        "COMPANY_AGE_CM",
+        "MINIMUM_COMPANY_AGE_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(or(isNull(MINIMUM_COMPANY_AGE_PEC), isNull(COMPANY_AGE_CM)), 0, ge(COMPANY_AGE_CM, MINIMUM_COMPANY_AGE_PEC))"
+      ],
+      "fields": [
+        "COMPANY_AGE_CM",
+        "MINIMUM_COMPANY_AGE_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "yrs",
+      "fields": [
+        "COMPANY_AGE_CM"
+      ],
+      "keyToConcat": [
+        "COMPANY_AGE_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "yrs",
+      "fields": [
+        "MINIMUM_COMPANY_AGE_PEC"
+      ],
+      "keyToConcat": [
+        "MINIMUM_COMPANY_AGE_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_COMPANY_AGE_PEC"
+      ],
+      "keyName": "IMPORTANCE_COMPANY_AGE_PEC",
+      "keyToConcat": [
+        "IMPORTANCE_COMPANY_AGE_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_MIN_REVENUE_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(and(isNull(MAXIMUM_ANNUAL_REVENUE_PEC), isNull(MINIMUM_ANNUAL_REVENUE_PEC)), -10000.0, 0)",
+        "ifElse(isNull(MAXIMUM_ANNUAL_REVENUE_PEC), 1e-24, MAXIMUM_ANNUAL_REVENUE_PEC)",
+        "ifElse(not(isNull(MAXIMUM_ANNUAL_REVENUE_PEC)), 100 * (resultFromFormulaEvalStep2 - ANNUAL_REVENUE_CM) / abs(resultFromFormulaEvalStep2), 9999999999999.0)",
+        "ifElse(isNull(MINIMUM_ANNUAL_REVENUE_PEC), 1e-24, MINIMUM_ANNUAL_REVENUE_PEC)",
+        "ifElse(not(isNull(MINIMUM_ANNUAL_REVENUE_PEC)), 100 * (ANNUAL_REVENUE_CM - resultFromFormulaEvalStep4) / abs(resultFromFormulaEvalStep4), 9999999999999.0)",
+        "ifElse(and4(not(isNull(MAXIMUM_ANNUAL_REVENUE_PEC)), not(isNull(MINIMUM_ANNUAL_REVENUE_PEC)), ge(ANNUAL_REVENUE_CM, resultFromFormulaEvalStep4), le(ANNUAL_REVENUE_CM, resultFromFormulaEvalStep2)), 100, -999999.0)",
+        "ifElse(eq(resultFromFormulaEvalStep6, -999999.0), min(resultFromFormulaEvalStep3, resultFromFormulaEvalStep5), resultFromFormulaEvalStep6)",
+        "ifElse(ne(resultFromFormulaEvalStep1, -10000.0), resultFromFormulaEvalStep7, resultFromFormulaEvalStep1)",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(ANNUAL_REVENUE_CM), eq(resultFromFormulaEvalStep1, -10000.0)), 0, resultFromFormulaEvalStep11)"
+      ],
+      "fields": [
+        "ANNUAL_REVENUE_CM",
+        "MINIMUM_ANNUAL_REVENUE_PEC",
+        "MAXIMUM_ANNUAL_REVENUE_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(and(isNull(MAXIMUM_ANNUAL_REVENUE_PEC), isNull(MINIMUM_ANNUAL_REVENUE_PEC)), 0, 1)",
+        "ifElse(isNull(MINIMUM_ANNUAL_REVENUE_PEC), 1e-24, MINIMUM_ANNUAL_REVENUE_PEC)",
+        "ifElse(isNull(MAXIMUM_ANNUAL_REVENUE_PEC), 1e-24, MAXIMUM_ANNUAL_REVENUE_PEC)",
+        "ifElse(and3(not(isNull(MINIMUM_ANNUAL_REVENUE_PEC)), isNull(MAXIMUM_ANNUAL_REVENUE_PEC), not(isNull(ANNUAL_REVENUE_CM))), ge(ANNUAL_REVENUE_CM, resultFromFormulaEvalStep2), 0)",
+        "ifElse(and3(isNull(MINIMUM_ANNUAL_REVENUE_PEC), not(isNull(MAXIMUM_ANNUAL_REVENUE_PEC)), not(isNull(ANNUAL_REVENUE_CM))), le(ANNUAL_REVENUE_CM, resultFromFormulaEvalStep3), 0)",
+        "ifElse(and3(not(isNull(MINIMUM_ANNUAL_REVENUE_PEC)), not(isNull(MAXIMUM_ANNUAL_REVENUE_PEC)), not(isNull(ANNUAL_REVENUE_CM))), and(ge(ANNUAL_REVENUE_CM, resultFromFormulaEvalStep2), le(ANNUAL_REVENUE_CM, resultFromFormulaEvalStep3)), 0)",
+        "ifElse(ne(resultFromFormulaEvalStep1, 0), max(resultFromFormulaEvalStep4, max(resultFromFormulaEvalStep5, resultFromFormulaEvalStep6)), 0)"
+      ],
+      "fields": [
+        "ANNUAL_REVENUE_CM",
+        "MINIMUM_ANNUAL_REVENUE_PEC",
+        "MAXIMUM_ANNUAL_REVENUE_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "Cr",
+      "fields": [
+        "ANNUAL_REVENUE_CM"
+      ],
+      "keyToConcat": [
+        "ANNUAL_REVENUE_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "Cr",
+      "fields": [
+        "MINIMUM_ANNUAL_REVENUE_PEC",
+        "MAXIMUM_ANNUAL_REVENUE_PEC"
+      ],
+      "keyToConcat": [
+        "MINIMUM_ANNUAL_REVENUE_PEC",
+        "MAXIMUM_ANNUAL_REVENUE_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_ANNUAL_REVENUE_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_ANNUAL_REVENUE_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_REVENUE_GROWTH_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(ANNUAL_REVENUE_GROWTH_RATE_CM - MINIMUM_ANNUAL_REVENUE_GROWTH_RATE_PEC) / abs(MINIMUM_ANNUAL_REVENUE_GROWTH_RATE_PEC) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(ANNUAL_REVENUE_GROWTH_RATE_CM), isNull(MINIMUM_ANNUAL_REVENUE_GROWTH_RATE_PEC)), 0, resultFromFormulaEvalStep4)"
+      ],
+      "fields": [
+        "ANNUAL_REVENUE_GROWTH_RATE_CM",
+        "MINIMUM_ANNUAL_REVENUE_GROWTH_RATE_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(or(isNull(ANNUAL_REVENUE_GROWTH_RATE_CM), isNull(MINIMUM_ANNUAL_REVENUE_GROWTH_RATE_PEC)), 0, ge(ANNUAL_REVENUE_GROWTH_RATE_CM, MINIMUM_ANNUAL_REVENUE_GROWTH_RATE_PEC))"
+      ],
+      "fields": [
+        "ANNUAL_REVENUE_GROWTH_RATE_CM",
+        "MINIMUM_ANNUAL_REVENUE_GROWTH_RATE_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "ANNUAL_REVENUE_GROWTH_RATE_CM"
+      ],
+      "keyToConcat": [
+        "ANNUAL_REVENUE_GROWTH_RATE_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "MINIMUM_ANNUAL_REVENUE_GROWTH_RATE_PEC"
+      ],
+      "keyToConcat": [
+        "MINIMUM_ANNUAL_REVENUE_GROWTH_RATE_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_ANNUAL_REVENUE_GROWTH_RATE_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_ANNUAL_REVENUE_GROWTH_RATE_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_RUNWAY_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(RUNWAY_CM - MINIMUM_RUNWAY_PEC) / abs(MINIMUM_RUNWAY_PEC) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(RUNWAY_CM), isNull(MINIMUM_RUNWAY_PEC)), 0, resultFromFormulaEvalStep4)"
+      ],
+      "fields": [
+        "RUNWAY_CM",
+        "MINIMUM_RUNWAY_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(or(isNull(RUNWAY_CM), isNull(MINIMUM_RUNWAY_PEC)), 0, ge(RUNWAY_CM, MINIMUM_RUNWAY_PEC))"
+      ],
+      "fields": [
+        "RUNWAY_CM",
+        "MINIMUM_RUNWAY_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "m",
+      "fields": [
+        "RUNWAY_CM"
+      ],
+      "keyToConcat": [
+        "RUNWAY_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "m",
+      "fields": [
+        "MINIMUM_RUNWAY_PEC"
+      ],
+      "keyToConcat": [
+        "MINIMUM_RUNWAY_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_RUNWAY_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_RUNWAY_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_NETWORTH_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(eq(STAGE_OF_EQUITY_CM, 'SHA signed'), NET_WORTH_CM + IMMINENT_EQUITY_RAISED_CM, NET_WORTH_CM)",
+        "ifElse(eq(MINIMUM_NET_WORTH_PEC,0), min(MINIMUM_NET_WORTH_PEC,-0.0000000001), MINIMUM_NET_WORTH_PEC)",
+        "(resultFromFormulaEvalStep1 - resultFromFormulaEvalStep2) / abs(resultFromFormulaEvalStep2) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(isNull(MINIMUM_NET_WORTH_PEC), 0, resultFromFormulaEvalStep6)"
+      ],
+      "fields": [
+        "NET_WORTH_CM",
+        "MINIMUM_NET_WORTH_PEC",
+        "SCALING_FACTOR",
+        "STAGE_OF_EQUITY_CM",
+        "IMMINENT_EQUITY_RAISED_CM"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(eq(STAGE_OF_EQUITY_CM, 'SHA signed'), NET_WORTH_CM + IMMINENT_EQUITY_RAISED_CM, NET_WORTH_CM)",
+        "ifElse(isNull(MINIMUM_NET_WORTH_PEC), 0, ge(resultFromFormulaEvalStep1, MINIMUM_NET_WORTH_PEC))"
+      ],
+      "fields": [
+        "STAGE_OF_EQUITY_CM",
+        "IMMINENT_EQUITY_RAISED_CM",
+        "NET_WORTH_CM",
+        "MINIMUM_NET_WORTH_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "Cr",
+      "formula": "ifElse(eq(STAGE_OF_EQUITY_CM, 'SHA signed'), NET_WORTH_CM + IMMINENT_EQUITY_RAISED_CM, NET_WORTH_CM)",
+      "fields": [
+        "STAGE_OF_EQUITY_CM",
+        "IMMINENT_EQUITY_RAISED_CM",
+        "NET_WORTH_CM"
+      ],
+      "keyToConcat": [
+        "NET_WORTH_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "Cr",
+      "fields": [
+        "MINIMUM_NET_WORTH_PEC"
+      ],
+      "keyToConcat": [
+        "MINIMUM_NET_WORTH_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_NET_WORTH_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_NET_WORTH_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_EBITDA_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(EBITDA_CM / ANNUAL_REVENUE_CM) * 100",
+        "(resultFromFormulaEval - MINIMUM_EBITDA_PEC) / abs(MINIMUM_EBITDA_PEC) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(eq(ANNUAL_REVENUE_CM,1e-24), 0, resultFromFormulaEval)",
+        "ifElse(or(isNull(EBITDA_CM), or(isNull(ANNUAL_REVENUE_CM), isNull(MINIMUM_EBITDA_PEC))), 0, resultFromFormulaEval)"
+      ],
+      "fields": [
+        "EBITDA_CM",
+        "MINIMUM_EBITDA_PEC",
+        "ANNUAL_REVENUE_CM",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(EBITDA_CM / ANNUAL_REVENUE_CM) * 100",
+        "ifElse(or(isNull(EBITDA_CM), or(isNull(ANNUAL_REVENUE_CM), isNull(MINIMUM_EBITDA_PEC))), 0, ge(resultFromFormulaEval, MINIMUM_EBITDA_PEC))"
+      ],
+      "fields": [
+        "EBITDA_CM",
+        "MINIMUM_EBITDA_PEC",
+        "ANNUAL_REVENUE_CM"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "EBITDA_CM"
+      ],
+      "formula": [
+        "round((EBITDA_CM / ANNUAL_REVENUE_CM) * 100, 2)",
+        "ifElse(or(isNull(EBITDA_CM), isNull(ANNUAL_REVENUE_CM)), 0, resultFromFormulaEval)"
+      ],
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "EBITDA_CM",
+        "ANNUAL_REVENUE_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "MINIMUM_EBITDA_PEC"
+      ],
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "MINIMUM_EBITDA_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "IMPORTANCE_EBITDA_PEC"
+      ],
+      "fields": [
+        "IMPORTANCE_EBITDA_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_MIN_EQUITY_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(TOTAL_EQUITY_RAISED_CM - EQUITY_RAISED_PEC) / abs(EQUITY_RAISED_PEC) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(TOTAL_EQUITY_RAISED_CM), isNull(EQUITY_RAISED_PEC)), 0, resultFromFormulaEvalStep4)"
+      ],
+      "fields": [
+        "TOTAL_EQUITY_RAISED_CM",
+        "EQUITY_RAISED_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(or(isNull(TOTAL_EQUITY_RAISED_CM), isNull(EQUITY_RAISED_PEC)), 0, ge(TOTAL_EQUITY_RAISED_CM, EQUITY_RAISED_PEC))"
+      ],
+      "fields": [
+        "TOTAL_EQUITY_RAISED_CM",
+        "EQUITY_RAISED_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "Cr",
+      "fields": [
+        "TOTAL_EQUITY_RAISED_CM"
+      ],
+      "keyToConcat": [
+        "TOTAL_EQUITY_RAISED_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "Cr",
+      "fields": [
+        "EQUITY_RAISED_PEC"
+      ],
+      "keyToConcat": [
+        "EQUITY_RAISED_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_EQUITY_RAISED_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_EQUITY_RAISED_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_SECURITY_TYPE_METRIC": {
+    "MATCHED_CONFIG": {
+      "evaluationStrategy": "ARRAY_MATCHING",
+      "formula": [
+        "(matchedCount - size) / size * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight"
+      ],
+      "dataPool": {
+        "arrayToMatch": "MANDATORY_SECURITY_OFFERED_PEC",
+        "arrayToMatchIn": "SECURITY_TYPE_CM"
+      },
+      "fields": [
+        "SECURITY_TYPE_CM",
+        "MANDATORY_SECURITY_OFFERED_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_MANDATORY_SECURITY_OFFERED_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_MANDATORY_SECURITY_OFFERED_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_ROI_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(ROI_CM - MINIMUM_ROI_PEC) / abs(MINIMUM_ROI_PEC) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(ROI_CM), isNull(MINIMUM_ROI_PEC)), 0, resultFromFormulaEvalStep4)"
+      ],
+      "fields": [
+        "ROI_CM",
+        "MINIMUM_ROI_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(or(isNull(ROI_CM), isNull(MINIMUM_ROI_PEC)), 0, ge(ROI_CM, MINIMUM_ROI_PEC))"
+      ],
+      "fields": [
+        "ROI_CM",
+        "MINIMUM_ROI_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "ROI_CM"
+      ],
+      "keyToConcat": [
+        "ROI_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "MINIMUM_ROI_PEC"
+      ],
+      "keyToConcat": [
+        "MINIMUM_ROI_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_ROI_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_ROI_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_TENURE_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(and(isNull(MAXIMUM_TENURE_PEC), isNull(MINIMUM_TENURE_PEC)), -10000.0, 0)",
+        "ifElse(isNull(MAXIMUM_TENURE_PEC), 1e-24, MAXIMUM_TENURE_PEC)",
+        "ifElse(not(isNull(MAXIMUM_TENURE_PEC)), 100 * (resultFromFormulaEvalStep2 - TENURE_CM) / abs(resultFromFormulaEvalStep2), 9999999999999.0)",
+        "ifElse(isNull(MINIMUM_TENURE_PEC), 1e-24, MINIMUM_TENURE_PEC)",
+        "ifElse(not(isNull(MINIMUM_TENURE_PEC)), 100 * (TENURE_CM - resultFromFormulaEvalStep4) / abs(resultFromFormulaEvalStep4), 9999999999999.0)",
+        "ifElse(and4(not(isNull(MAXIMUM_TENURE_PEC)), not(isNull(MINIMUM_TENURE_PEC)), ge(TENURE_CM, resultFromFormulaEvalStep4), le(TENURE_CM, resultFromFormulaEvalStep2)), 100, -999999.0)",
+        "ifElse(eq(resultFromFormulaEvalStep6, -999999.0), min(resultFromFormulaEvalStep3, resultFromFormulaEvalStep5), resultFromFormulaEvalStep6)",
+        "ifElse(ne(resultFromFormulaEvalStep1, -10000.0), resultFromFormulaEvalStep7, resultFromFormulaEvalStep1)",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(TENURE_CM),  eq(resultFromFormulaEvalStep1, -10000.0)), 0, resultFromFormulaEvalStep11)"
+      ],
+      "fields": [
+        "TENURE_CM",
+        "MINIMUM_TENURE_PEC",
+        "MAXIMUM_TENURE_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(and(isNull(MAXIMUM_TENURE_PEC), isNull(MINIMUM_TENURE_PEC)), 0, 1)",
+        "ifElse(isNull(MINIMUM_TENURE_PEC), 1e-24, MINIMUM_TENURE_PEC)",
+        "ifElse(isNull(MAXIMUM_TENURE_PEC), 1e-24, MAXIMUM_TENURE_PEC)",
+        "ifElse(and3(not(isNull(MINIMUM_TENURE_PEC)), isNull(MAXIMUM_TENURE_PEC), not(isNull(TENURE_CM))), ge(TENURE_CM, resultFromFormulaEvalStep2), 0)",
+        "ifElse(and3(isNull(MINIMUM_TENURE_PEC), not(isNull(MAXIMUM_TENURE_PEC)), not(isNull(TENURE_CM))), le(TENURE_CM, resultFromFormulaEvalStep3), 0)",
+        "ifElse(and3(not(isNull(MINIMUM_TENURE_PEC)), not(isNull(MAXIMUM_TENURE_PEC)),  not(isNull(TENURE_CM))), and(ge(TENURE_CM, resultFromFormulaEvalStep2), le(TENURE_CM, resultFromFormulaEvalStep3)), 0)",
+        "ifElse(ne(resultFromFormulaEvalStep1, 0), max(resultFromFormulaEvalStep4, max(resultFromFormulaEvalStep5, resultFromFormulaEvalStep6)), 0)"
+      ],
+      "fields": [
+        "TENURE_CM",
+        "MINIMUM_TENURE_PEC",
+        "MAXIMUM_TENURE_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "m",
+      "fields": [
+        "TENURE_CM"
+      ],
+      "keyToConcat": [
+        "TENURE_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "m",
+      "fields": [
+        "MINIMUM_TENURE_PEC",
+        "MAXIMUM_TENURE_PEC"
+      ],
+      "keyToConcat": [
+        "MINIMUM_TENURE_PEC",
+        "MAXIMUM_TENURE_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_TENURE_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_TENURE_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_IMMINENT_EQUITY_BEING_RAISED_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(IMMINENT_EQUITY_RAISED_CM - IMMINENT_EQUITY_RAISED_PEC) / abs(IMMINENT_EQUITY_RAISED_PEC) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(IMMINENT_EQUITY_RAISED_CM), isNull(IMMINENT_EQUITY_RAISED_PEC)), 0, resultFromFormulaEvalStep4)"
+      ],
+      "fields": [
+        "IMMINENT_EQUITY_RAISED_CM",
+        "IMMINENT_EQUITY_RAISED_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(or(isNull(IMMINENT_EQUITY_RAISED_CM), isNull(IMMINENT_EQUITY_RAISED_PEC)), 0, ge(IMMINENT_EQUITY_RAISED_CM, IMMINENT_EQUITY_RAISED_PEC))"
+      ],
+      "fields": [
+        "IMMINENT_EQUITY_RAISED_CM",
+        "IMMINENT_EQUITY_RAISED_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "Cr",
+      "fields": [
+        "IMMINENT_EQUITY_RAISED_CM"
+      ],
+      "keyToConcat": [
+        "IMMINENT_EQUITY_RAISED_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "Cr",
+      "fields": [
+        "IMMINENT_EQUITY_RAISED_PEC"
+      ],
+      "keyToConcat": [
+        "IMMINENT_EQUITY_RAISED_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_IMMINENT_EQUITY_RAISED_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_IMMINENT_EQUITY_RAISED_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_WORKING_CAPITAL_GAP_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(eq(WORKING_CAPITAL_GAP_CM, 1e-24), 0, (WORKING_CAPITAL_GAP_CM / ANNUAL_REVENUE_CM) * 365)",
+        "ifElse(and(isNull(MAXIMUM_WORKING_CAPITAL_GAP_PEC), isNull(MINIMUM_WORKING_CAPITAL_GAP_PEC)), -10000.0, 0)",
+        "ifElse(isNull(MAXIMUM_WORKING_CAPITAL_GAP_PEC), 1e-24,  MAXIMUM_WORKING_CAPITAL_GAP_PEC)",
+        "ifElse(not(isNull(MAXIMUM_WORKING_CAPITAL_GAP_PEC)), 100 * (resultFromFormulaEvalStep3 - resultFromFormulaEvalStep1) / abs(resultFromFormulaEvalStep3), 9999999999999.0)",
+        "ifElse(isNull(MINIMUM_WORKING_CAPITAL_GAP_PEC), 1e-24,  MINIMUM_WORKING_CAPITAL_GAP_PEC)",
+        "ifElse(not(isNull(MINIMUM_WORKING_CAPITAL_GAP_PEC)), 100 * (resultFromFormulaEvalStep1 - resultFromFormulaEvalStep5) / abs(resultFromFormulaEvalStep5), 9999999999999.0)",
+        "ifElse(eq(resultFromFormulaEvalStep1, 0), 1e-24, resultFromFormulaEvalStep1)",
+        "ifElse(and4(not(isNull(MAXIMUM_WORKING_CAPITAL_GAP_PEC)), not(isNull(MINIMUM_WORKING_CAPITAL_GAP_PEC)), ge(resultFromFormulaEvalStep7, MINIMUM_WORKING_CAPITAL_GAP_PEC), le(resultFromFormulaEvalStep7, MAXIMUM_WORKING_CAPITAL_GAP_PEC)), 100, -999999.0)",
+        "ifElse(eq(resultFromFormulaEvalStep8,-999999.0), min(resultFromFormulaEvalStep4, resultFromFormulaEvalStep6), resultFromFormulaEvalStep8)",
+        "ifElse(ne(resultFromFormulaEvalStep2, -10000.0), resultFromFormulaEvalStep9, resultFromFormulaEvalStep2)",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(WORKING_CAPITAL_GAP_CM), or(isNull(ANNUAL_REVENUE_CM), eq(resultFromFormulaEvalStep2, -10000.0))), 0, resultFromFormulaEvalStep13)"
+      ],
+      "fields": [
+        "WORKING_CAPITAL_GAP_CM",
+        "MAXIMUM_WORKING_CAPITAL_GAP_PEC",
+        "ANNUAL_REVENUE_CM",
+        "MINIMUM_WORKING_CAPITAL_GAP_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "keyToConcat": [
+        "WORKING_CAPITAL_GAP_CM"
+      ],
+      "formula": [
+        "ifElse(eq(WORKING_CAPITAL_GAP_CM, 1e-24), 0, WORKING_CAPITAL_GAP_CM)",
+        "(resultFromFormulaEvalStep1 / ANNUAL_REVENUE_CM) * 365",
+        "ifElse(and(isNull(MAXIMUM_WORKING_CAPITAL_GAP_PEC), isNull(MINIMUM_WORKING_CAPITAL_GAP_PEC)), 0, 1)",
+        "ifElse(or(isNull(MINIMUM_WORKING_CAPITAL_GAP_PEC), eq(MINIMUM_WORKING_CAPITAL_GAP_PEC, 1e-24)), 0, MINIMUM_WORKING_CAPITAL_GAP_PEC)",
+        "ifElse(or(isNull(MAXIMUM_WORKING_CAPITAL_GAP_PEC), eq(MAXIMUM_WORKING_CAPITAL_GAP_PEC, 1e-24)), 0, MAXIMUM_WORKING_CAPITAL_GAP_PEC)",
+        "ifElse(and(not(isNull(MINIMUM_WORKING_CAPITAL_GAP_PEC)), isNull(MAXIMUM_WORKING_CAPITAL_GAP_PEC)), ge(resultFromFormulaEvalStep2, resultFromFormulaEvalStep4), 0)",
+        "ifElse(and(isNull(MINIMUM_WORKING_CAPITAL_GAP_PEC), not(isNull(MAXIMUM_WORKING_CAPITAL_GAP_PEC))), le(resultFromFormulaEvalStep2, resultFromFormulaEvalStep5), 0)",
+        "ifElse(and(not(isNull(MINIMUM_WORKING_CAPITAL_GAP_PEC)), not(isNull(MAXIMUM_WORKING_CAPITAL_GAP_PEC))), and(ge(resultFromFormulaEvalStep2, resultFromFormulaEvalStep4), le(resultFromFormulaEvalStep2, resultFromFormulaEvalStep5)), 0)",
+        "ifElse(or(isNull(WORKING_CAPITAL_GAP_CM), eq(resultFromFormulaEvalStep3, 0)), 0, max(resultFromFormulaEvalStep6, max(resultFromFormulaEvalStep7, resultFromFormulaEvalStep8)))"
+      ],
+      "fields": [
+        "ANNUAL_REVENUE_CM",
+        "WORKING_CAPITAL_GAP_CM",
+        "MAXIMUM_WORKING_CAPITAL_GAP_PEC",
+        "MINIMUM_WORKING_CAPITAL_GAP_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "WORKING_CAPITAL_GAP_CM"
+      ],
+      "formula": [
+        "round((WORKING_CAPITAL_GAP_CM / ANNUAL_REVENUE_CM) * 365, 2)",
+        "ifElse(or(isNull(WORKING_CAPITAL_GAP_CM), isNull(ANNUAL_REVENUE_CM)), 0, resultFromFormulaEval)"
+      ],
+      "prefix": "",
+      "suffix": "Days",
+      "fields": [
+        "WORKING_CAPITAL_GAP_CM",
+        "ANNUAL_REVENUE_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "Days",
+      "keyToConcat": [
+        "MINIMUM_WORKING_CAPITAL_GAP_PEC",
+        "MAXIMUM_WORKING_CAPITAL_GAP_PEC"
+      ],
+      "fields": [
+        "MAXIMUM_WORKING_CAPITAL_GAP_PEC",
+        "MINIMUM_WORKING_CAPITAL_GAP_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "IMPORTANCE_WORKING_CAPITAL_GAP_PEC"
+      ],
+      "fields": [
+        "IMPORTANCE_WORKING_CAPITAL_GAP_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_EXISTING_DEBT_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(EXISTING_DEBT_CM / ANNUAL_REVENUE_CM) * 100",
+        "ifElse(le(resultFromFormulaEval, 1e-16), 1e-24, resultFromFormulaEval)",
+        "((resultFromFormulaEval - EXISTING_DEBT_PEC) / abs(EXISTING_DEBT_PEC)) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), 1, exp((resultFromFormulaEval * -1)/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))))",
+        "min(resultFromFormulaEval, 1)",
+        "(resultFromFormulaEval * weight) / totalWeight",
+        "ifElse(or(isNull(EXISTING_DEBT_CM), or(isNull(ANNUAL_REVENUE_CM), isNull(EXISTING_DEBT_PEC))), 0, resultFromFormulaEvalStep6)"
+      ],
+      "fields": [
+        "EXISTING_DEBT_CM",
+        "EXISTING_DEBT_PEC",
+        "ANNUAL_REVENUE_CM",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(eq(EXISTING_DEBT_CM, 1e-24), 0, EXISTING_DEBT_CM)",
+        "(resultFromFormulaEvalStep1 / ANNUAL_REVENUE_CM) * 100",
+        "ifElse(eq(EXISTING_DEBT_PEC, 1e-24), 0, EXISTING_DEBT_PEC)",
+        "ifElse(or(isNull(EXISTING_DEBT_CM), or(isNull(ANNUAL_REVENUE_CM), isNull(EXISTING_DEBT_PEC))), 0, le(resultFromFormulaEvalStep2, resultFromFormulaEvalStep3))"
+      ],
+      "fields": [
+        "EXISTING_DEBT_CM",
+        "EXISTING_DEBT_PEC",
+        "ANNUAL_REVENUE_CM"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "EXISTING_DEBT_CM"
+      ],
+      "formula": [
+        "round((EXISTING_DEBT_CM / ANNUAL_REVENUE_CM) * 100, 2)",
+        "ifElse(or(isNull(EXISTING_DEBT_CM), isNull(ANNUAL_REVENUE_CM)), 0, resultFromFormulaEval)"
+      ],
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "EXISTING_DEBT_CM",
+        "ANNUAL_REVENUE_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "EXISTING_DEBT_PEC"
+      ],
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "EXISTING_DEBT_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "IMPORTANCE_EXISTING_DEBT_PEC"
+      ],
+      "fields": [
+        "IMPORTANCE_EXISTING_DEBT_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_CAPITAL_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(and(isNull(MAXIMUM_DEAL_AMOUNT_PEC), isNull(MINIMUM_DEAL_AMOUNT_PEC)), -10000.0, 0)",
+        "ifElse(isNull(MAXIMUM_DEAL_AMOUNT_PEC), 1e-24, MAXIMUM_DEAL_AMOUNT_PEC)",
+        "ifElse(not(isNull(MAXIMUM_DEAL_AMOUNT_PEC)), 100 * (resultFromFormulaEvalStep2 - MAX_DEAL_AMOUNT_CM) / abs(resultFromFormulaEvalStep2), 9999999999999.0)",
+        "ifElse(isNull(MINIMUM_DEAL_AMOUNT_PEC), 1e-24, MINIMUM_DEAL_AMOUNT_PEC)",
+        "ifElse(not(isNull(MINIMUM_DEAL_AMOUNT_PEC)), 100 * (MAX_DEAL_AMOUNT_CM - resultFromFormulaEvalStep4) / abs(resultFromFormulaEvalStep4), 9999999999999.0)",
+        "ifElse(and4(not(isNull(MAXIMUM_DEAL_AMOUNT_PEC)), not(isNull(MINIMUM_DEAL_AMOUNT_PEC)), ge(MAX_DEAL_AMOUNT_CM, resultFromFormulaEvalStep4), le(MAX_DEAL_AMOUNT_CM, resultFromFormulaEvalStep2)), 100, -999999.0)",
+        "ifElse(eq(resultFromFormulaEvalStep6, -999999.0), min(resultFromFormulaEvalStep3, resultFromFormulaEvalStep5), resultFromFormulaEvalStep6)",
+        "ifElse(ne(resultFromFormulaEvalStep1, -10000.0), resultFromFormulaEvalStep7, resultFromFormulaEvalStep1)",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(MAX_DEAL_AMOUNT_CM), eq(resultFromFormulaEvalStep1, -10000.0)), 0, resultFromFormulaEvalStep11)"
+      ],
+      "fields": [
+        "MAX_DEAL_AMOUNT_CM",
+        "MINIMUM_DEAL_AMOUNT_PEC",
+        "MAXIMUM_DEAL_AMOUNT_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(and(isNull(MAXIMUM_DEAL_AMOUNT_PEC), isNull(MINIMUM_DEAL_AMOUNT_PEC)), 0, 1)",
+        "ifElse(isNull(MINIMUM_DEAL_AMOUNT_PEC), 1e-24, MINIMUM_DEAL_AMOUNT_PEC)",
+        "ifElse(isNull(MAXIMUM_DEAL_AMOUNT_PEC), 1e-24, MAXIMUM_DEAL_AMOUNT_PEC)",
+        "ifElse(and3(not(isNull(MINIMUM_DEAL_AMOUNT_PEC)), isNull(MAXIMUM_DEAL_AMOUNT_PEC), not(isNull(MAX_DEAL_AMOUNT_CM))), ge(MAX_DEAL_AMOUNT_CM, resultFromFormulaEvalStep2), 0)",
+        "ifElse(and3(isNull(MINIMUM_DEAL_AMOUNT_PEC), not(isNull(MAXIMUM_DEAL_AMOUNT_PEC)), not(isNull(MAX_DEAL_AMOUNT_CM))), le(MAX_DEAL_AMOUNT_CM, resultFromFormulaEvalStep3), 0)",
+        "ifElse(and3(not(isNull(MINIMUM_DEAL_AMOUNT_PEC)), not(isNull(MAXIMUM_DEAL_AMOUNT_PEC)), not(isNull(MAX_DEAL_AMOUNT_CM))), and(ge(MAX_DEAL_AMOUNT_CM, resultFromFormulaEvalStep2), le(MAX_DEAL_AMOUNT_CM, resultFromFormulaEvalStep3)), 0)",
+        "ifElse(ne(resultFromFormulaEvalStep1, 0), max(resultFromFormulaEvalStep4, max(resultFromFormulaEvalStep5, resultFromFormulaEvalStep6)), 0)"
+      ],
+      "fields": [
+        "MAX_DEAL_AMOUNT_CM",
+        "MINIMUM_DEAL_AMOUNT_PEC",
+        "MAXIMUM_DEAL_AMOUNT_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "Cr",
+      "fields": [
+        "MAX_DEAL_AMOUNT_CM"
+      ],
+      "keyToConcat": [
+        "MAX_DEAL_AMOUNT_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "Cr",
+      "fields": [
+        "MINIMUM_DEAL_AMOUNT_PEC",
+        "MAXIMUM_DEAL_AMOUNT_PEC"
+      ],
+      "keyToConcat": [
+        "MINIMUM_DEAL_AMOUNT_PEC",
+        "MAXIMUM_DEAL_AMOUNT_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_DEAL_AMOUNT_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_DEAL_AMOUNT_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_SECTOR_METRIC": {
+    "MATCHED_CONFIG": {
+      "evaluationStrategy": "STRING_ARRAY_MATCHING",
+      "formula": [
+        "resultFromFormulaEval * weight / totalWeight"
+      ],
+      "dataPool": {
+        "stringToMatch": "COMPANY_SECTOR_CM",
+        "arrayToMatchIn": "POSITIVE_SECTOR_PEC"
+      },
+      "fields": [
+        "COMPANY_SECTOR_CM",
+        "POSITIVE_SECTOR_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_POSITIVE_SECTOR_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_POSITIVE_SECTOR_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_STATE_METRIC": {
+    "MATCHED_CONFIG": {
+      "evaluationStrategy": "STRING_ARRAY_MATCHING",
+      "formula": [
+        "resultFromFormulaEval * weight / totalWeight"
+      ],
+      "dataPool": {
+        "stringToMatch": "HQ_LOCATION_STATE_CM",
+        "arrayToMatchIn": "STATES_PEC"
+      },
+      "fields": [
+        "HQ_LOCATION_STATE_CM",
+        "STATES_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_STATES_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_STATES_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_EXTERNAL_RATING_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(EXTERNAL_RATING_CM - EXTERNAL_RATING_PEC) / abs(EXTERNAL_RATING_PEC) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight"
+      ],
+      "fields": [
+        "EXTERNAL_RATING_CM",
+        "EXTERNAL_RATING_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ge(EXTERNAL_RATING_CM, EXTERNAL_RATING_PEC)"
+      ],
+      "fields": [
+        "EXTERNAL_RATING_CM",
+        "EXTERNAL_RATING_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "EXTERNAL_RATING_CM"
+      ],
+      "keyToConcat": [
+        "EXTERNAL_RATING_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "EXTERNAL_RATING_PEC"
+      ],
+      "keyToConcat": [
+        "EXTERNAL_RATING_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_EXTERNAL_RATING_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_EXTERNAL_RATING_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_TRADE_PAYABLES_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(eq(TRADE_PAYABLES_CM, 1e-24), 0, (TRADE_PAYABLES_CM / ANNUAL_REVENUE_CM) * 365)",
+        "ifElse(and(isNull(MAXIMUM_TRADE_PAYABLES_PEC), isNull(MINIMUM_TRADE_PAYABLES_PEC)), -10000.0, 0)",
+        "ifElse(isNull(MAXIMUM_TRADE_PAYABLES_PEC), 1e-24,  MAXIMUM_TRADE_PAYABLES_PEC)",
+        "ifElse(not(isNull(MAXIMUM_TRADE_PAYABLES_PEC)), 100 * (resultFromFormulaEvalStep3 - resultFromFormulaEvalStep1) / abs(resultFromFormulaEvalStep3), 9999999999999.0)",
+        "ifElse(isNull(MINIMUM_TRADE_PAYABLES_PEC), 1e-24,  MINIMUM_TRADE_PAYABLES_PEC)",
+        "ifElse(not(isNull(MINIMUM_TRADE_PAYABLES_PEC)), 100 * (resultFromFormulaEvalStep1 - resultFromFormulaEvalStep5) / abs(resultFromFormulaEvalStep5), 9999999999999.0)",
+        "ifElse(eq(resultFromFormulaEvalStep1, 0), 1e-24, resultFromFormulaEvalStep1)",
+        "ifElse(and4(not(isNull(MAXIMUM_TRADE_PAYABLES_PEC)), not(isNull(MINIMUM_TRADE_PAYABLES_PEC)), ge(resultFromFormulaEvalStep7, MINIMUM_TRADE_PAYABLES_PEC), le(resultFromFormulaEvalStep7, MAXIMUM_TRADE_PAYABLES_PEC)), 100, -999999.0)",
+        "ifElse(eq(resultFromFormulaEvalStep8,-999999.0), min(resultFromFormulaEvalStep4, resultFromFormulaEvalStep6), resultFromFormulaEvalStep8)",
+        "ifElse(ne(resultFromFormulaEvalStep2, -10000.0), resultFromFormulaEvalStep9, resultFromFormulaEvalStep2)",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(TRADE_PAYABLES_CM), or(isNull(ANNUAL_REVENUE_CM), eq(resultFromFormulaEvalStep2, -10000.0))), 0, resultFromFormulaEvalStep13)"
+      ],
+      "fields": [
+        "TRADE_PAYABLES_CM",
+        "MAXIMUM_TRADE_PAYABLES_PEC",
+        "ANNUAL_REVENUE_CM",
+        "MINIMUM_TRADE_PAYABLES_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "keyToConcat": [
+        "TRADE_PAYABLES_CM"
+      ],
+      "formula": [
+        "ifElse(eq(TRADE_PAYABLES_CM, 1e-24), 0, TRADE_PAYABLES_CM)",
+        "(resultFromFormulaEvalStep1 / ANNUAL_REVENUE_CM) * 365",
+        "ifElse(and(isNull(MAXIMUM_TRADE_PAYABLES_PEC), isNull(MINIMUM_TRADE_PAYABLES_PEC)), 0, 1)",
+        "ifElse(or(isNull(MINIMUM_TRADE_PAYABLES_PEC), eq(MINIMUM_TRADE_PAYABLES_PEC, 1e-24)), 0, MINIMUM_TRADE_PAYABLES_PEC)",
+        "ifElse(or(isNull(MAXIMUM_TRADE_PAYABLES_PEC), eq(MAXIMUM_TRADE_PAYABLES_PEC, 1e-24)), 0, MAXIMUM_TRADE_PAYABLES_PEC)",
+        "ifElse(and(not(isNull(MINIMUM_TRADE_PAYABLES_PEC)), isNull(MAXIMUM_TRADE_PAYABLES_PEC)), ge(resultFromFormulaEvalStep2, resultFromFormulaEvalStep4), 0)",
+        "ifElse(and(isNull(MINIMUM_TRADE_PAYABLES_PEC), not(isNull(MAXIMUM_TRADE_PAYABLES_PEC))), le(resultFromFormulaEvalStep2, resultFromFormulaEvalStep5), 0)",
+        "ifElse(and(not(isNull(MINIMUM_TRADE_PAYABLES_PEC)), not(isNull(MAXIMUM_TRADE_PAYABLES_PEC))), and(ge(resultFromFormulaEvalStep2, resultFromFormulaEvalStep4), le(resultFromFormulaEvalStep2, resultFromFormulaEvalStep5)), 0)",
+        "ifElse(or(isNull(TRADE_PAYABLES_CM), eq(resultFromFormulaEvalStep3, 0)), 0, max(resultFromFormulaEvalStep6, max(resultFromFormulaEvalStep7, resultFromFormulaEvalStep8)))"
+      ],
+      "fields": [
+        "ANNUAL_REVENUE_CM",
+        "TRADE_PAYABLES_CM",
+        "MAXIMUM_TRADE_PAYABLES_PEC",
+        "MINIMUM_TRADE_PAYABLES_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "TRADE_PAYABLES_CM"
+      ],
+      "formula": [
+        "round((TRADE_PAYABLES_CM / ANNUAL_REVENUE_CM) * 365, 2)",
+        "ifElse(or(isNull(TRADE_PAYABLES_CM), isNull(ANNUAL_REVENUE_CM)), 0, resultFromFormulaEval)"
+      ],
+      "prefix": "",
+      "suffix": "Days",
+      "fields": [
+        "TRADE_PAYABLES_CM",
+        "ANNUAL_REVENUE_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "Days",
+      "keyToConcat": [
+        "MINIMUM_TRADE_PAYABLES_PEC",
+        "MAXIMUM_TRADE_PAYABLES_PEC"
+      ],
+      "fields": [
+        "MAXIMUM_TRADE_PAYABLES_PEC",
+        "MINIMUM_TRADE_PAYABLES_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "IMPORTANCE_TRADE_PAYABLES_PEC"
+      ],
+      "fields": [
+        "IMPORTANCE_TRADE_PAYABLES_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_TRADE_RECEIVABLES_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(eq(TRADE_RECEIVABLE_CM, 1e-24), 0, (TRADE_RECEIVABLE_CM / ANNUAL_REVENUE_CM) * 365)",
+        "ifElse(and(isNull(MAXIMUM_TRADE_RECEIVABLE_PEC), isNull(MINIMUM_TRADE_RECEIVABLE_PEC)), -10000.0, 0)",
+        "ifElse(isNull(MAXIMUM_TRADE_RECEIVABLE_PEC), 1e-24,  MAXIMUM_TRADE_RECEIVABLE_PEC)",
+        "ifElse(not(isNull(MAXIMUM_TRADE_RECEIVABLE_PEC)), 100 * (resultFromFormulaEvalStep3 - resultFromFormulaEvalStep1) / abs(resultFromFormulaEvalStep3), 9999999999999.0)",
+        "ifElse(isNull(MINIMUM_TRADE_RECEIVABLE_PEC), 1e-24,  MINIMUM_TRADE_RECEIVABLE_PEC)",
+        "ifElse(not(isNull(MINIMUM_TRADE_RECEIVABLE_PEC)), 100 * (resultFromFormulaEvalStep1 - resultFromFormulaEvalStep5) / abs(resultFromFormulaEvalStep5), 9999999999999.0)",
+        "ifElse(eq(resultFromFormulaEvalStep1, 0), 1e-24, resultFromFormulaEvalStep1)",
+        "ifElse(and4(not(isNull(MAXIMUM_TRADE_RECEIVABLE_PEC)), not(isNull(MINIMUM_TRADE_RECEIVABLE_PEC)), ge(resultFromFormulaEvalStep7, MINIMUM_TRADE_RECEIVABLE_PEC), le(resultFromFormulaEvalStep7, MAXIMUM_TRADE_RECEIVABLE_PEC)), 100, -999999.0)",
+        "ifElse(eq(resultFromFormulaEvalStep8,-999999.0), min(resultFromFormulaEvalStep4, resultFromFormulaEvalStep6), resultFromFormulaEvalStep8)",
+        "ifElse(ne(resultFromFormulaEvalStep2, -10000.0), resultFromFormulaEvalStep9, resultFromFormulaEvalStep2)",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(TRADE_RECEIVABLE_CM), or(isNull(ANNUAL_REVENUE_CM), eq(resultFromFormulaEvalStep2, -10000.0))), 0, resultFromFormulaEvalStep13)"
+      ],
+      "fields": [
+        "TRADE_RECEIVABLE_CM",
+        "MAXIMUM_TRADE_RECEIVABLE_PEC",
+        "ANNUAL_REVENUE_CM",
+        "MINIMUM_TRADE_RECEIVABLE_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "keyToConcat": [
+        "TRADE_RECEIVABLE_CM"
+      ],
+      "formula": [
+        "ifElse(eq(TRADE_RECEIVABLE_CM, 1e-24), 0, TRADE_RECEIVABLE_CM)",
+        "(resultFromFormulaEvalStep1 / ANNUAL_REVENUE_CM) * 365",
+        "ifElse(and(isNull(MAXIMUM_TRADE_RECEIVABLE_PEC), isNull(MINIMUM_TRADE_RECEIVABLE_PEC)), 0, 1)",
+        "ifElse(or(isNull(MINIMUM_TRADE_RECEIVABLE_PEC), eq(MINIMUM_TRADE_RECEIVABLE_PEC, 1e-24)), 0, MINIMUM_TRADE_RECEIVABLE_PEC)",
+        "ifElse(or(isNull(MAXIMUM_TRADE_RECEIVABLE_PEC), eq(MAXIMUM_TRADE_RECEIVABLE_PEC, 1e-24)), 0, MAXIMUM_TRADE_RECEIVABLE_PEC)",
+        "ifElse(and(not(isNull(MINIMUM_TRADE_RECEIVABLE_PEC)), isNull(MAXIMUM_TRADE_RECEIVABLE_PEC)), ge(resultFromFormulaEvalStep2, resultFromFormulaEvalStep4), 0)",
+        "ifElse(and(isNull(MINIMUM_TRADE_RECEIVABLE_PEC), not(isNull(MAXIMUM_TRADE_RECEIVABLE_PEC))), le(resultFromFormulaEvalStep2, resultFromFormulaEvalStep5), 0)",
+        "ifElse(and(not(isNull(MINIMUM_TRADE_RECEIVABLE_PEC)), not(isNull(MAXIMUM_TRADE_RECEIVABLE_PEC))), and(ge(resultFromFormulaEvalStep2, resultFromFormulaEvalStep4), le(resultFromFormulaEvalStep2, resultFromFormulaEvalStep5)), 0)",
+        "ifElse(or(isNull(TRADE_RECEIVABLE_CM), eq(resultFromFormulaEvalStep3, 0)), 0, max(resultFromFormulaEvalStep6, max(resultFromFormulaEvalStep7, resultFromFormulaEvalStep8)))"
+      ],
+      "fields": [
+        "ANNUAL_REVENUE_CM",
+        "TRADE_RECEIVABLE_CM",
+        "MAXIMUM_TRADE_RECEIVABLE_PEC",
+        "MINIMUM_TRADE_RECEIVABLE_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "TRADE_RECEIVABLE_CM"
+      ],
+      "formula": [
+        "round((TRADE_RECEIVABLE_CM / ANNUAL_REVENUE_CM) * 365, 2)",
+        "ifElse(or(isNull(TRADE_RECEIVABLE_CM), isNull(ANNUAL_REVENUE_CM)), 0, resultFromFormulaEval)"
+      ],
+      "prefix": "",
+      "suffix": "Days",
+      "fields": [
+        "TRADE_RECEIVABLE_CM",
+        "ANNUAL_REVENUE_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "Days",
+      "keyToConcat": [
+        "MINIMUM_TRADE_RECEIVABLE_PEC",
+        "MAXIMUM_TRADE_RECEIVABLE_PEC"
+      ],
+      "fields": [
+        "MAXIMUM_TRADE_RECEIVABLE_PEC",
+        "MINIMUM_TRADE_RECEIVABLE_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "IMPORTANCE_TRADE_RECEIVABLES_PEC"
+      ],
+      "fields": [
+        "IMPORTANCE_TRADE_RECEIVABLES_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_DEBT_TO_NETWORTH_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(eq(STAGE_OF_EQUITY_CM, 'SHA signed'), NET_WORTH_CM + IMMINENT_EQUITY_RAISED_CM, NET_WORTH_CM)",
+        "ifElse(lte(resultFromFormulaEval, 1e-24), 0, EXISTING_DEBT_CM / resultFromFormulaEval)",
+        "((resultFromFormulaEval - DEBT_TO_NETWORTH_PEC) / abs(DEBT_TO_NETWORTH_PEC)) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), 1, exp((resultFromFormulaEval * -1) / ((SCALING_FACTOR + 1) - (SCALING_FACTOR * weight))))",
+        "ifElse(le(resultFromFormulaEvalStep1, 0), 0, resultFromFormulaEval)",
+        "min(resultFromFormulaEval, 1)",
+        "(resultFromFormulaEval * weight) / totalWeight",
+        "ifElse(or(isNull(DEBT_TO_NETWORTH_PEC), isNull(EXISTING_DEBT_CM)), 0, resultFromFormulaEval)"
+      ],
+      "fields": [
+        "STAGE_OF_EQUITY_CM",
+        "IMMINENT_EQUITY_RAISED_CM",
+        "NET_WORTH_CM",
+        "EXISTING_DEBT_CM",
+        "DEBT_TO_NETWORTH_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(eq(STAGE_OF_EQUITY_CM, 'SHA signed'), NET_WORTH_CM + IMMINENT_EQUITY_RAISED_CM, NET_WORTH_CM)",
+        "(EXISTING_DEBT_CM / resultFromFormulaEval)",
+        "ifElse(le(resultFromFormulaEvalStep1, 0), 0, le(resultFromFormulaEval, DEBT_TO_NETWORTH_PEC))",
+        "ifElse(or(isNull(EXISTING_DEBT_CM), isNull(DEBT_TO_NETWORTH_PEC)), 0, resultFromFormulaEval)"
+      ],
+      "fields": [
+        "STAGE_OF_EQUITY_CM",
+        "IMMINENT_EQUITY_RAISED_CM",
+        "NET_WORTH_CM",
+        "EXISTING_DEBT_CM",
+        "DEBT_TO_NETWORTH_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "EXISTING_DEBT_CM"
+      ],
+      "formula": [
+        "round((EXISTING_DEBT_CM / ifElse(eq(STAGE_OF_EQUITY_CM, 'SHA signed'), NET_WORTH_CM + IMMINENT_EQUITY_RAISED_CM, NET_WORTH_CM)), 2)",
+        "ifElse(or(isNull(EXISTING_DEBT_CM), isNull(NET_WORTH_CM)), 0, resultFromFormulaEval)"
+      ],
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "STAGE_OF_EQUITY_CM",
+        "IMMINENT_EQUITY_RAISED_CM",
+        "NET_WORTH_CM",
+        "EXISTING_DEBT_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "DEBT_TO_NETWORTH_PEC"
+      ],
+      "prefix": "",
+      "suffix": "",
+      "keyToConcat": [
+        "DEBT_TO_NETWORTH_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_DEBT_TO_NETWORTH_PEC"
+      ],
+      "prefix": "",
+      "suffix": "",
+      "keyToConcat": [
+        "IMPORTANCE_DEBT_TO_NETWORTH_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_PAT_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(PAT_CM / ANNUAL_REVENUE_CM) * 100",
+        "(resultFromFormulaEval - MINIMUM_PAT_PEC) / abs(MINIMUM_PAT_PEC) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval / ((SCALING_FACTOR + 1) - (SCALING_FACTOR * weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(eq(ANNUAL_REVENUE_CM, 1e-24), 0, resultFromFormulaEval)",
+        "ifElse(or(isNull(PAT_CM), or(isNull(ANNUAL_REVENUE_CM), isNull(MINIMUM_PAT_PEC))), 0, resultFromFormulaEval)"
+      ],
+      "fields": [
+        "PAT_CM",
+        "MINIMUM_PAT_PEC",
+        "ANNUAL_REVENUE_CM",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(PAT_CM / ANNUAL_REVENUE_CM) * 100",
+        "ifElse(or(isNull(PAT_CM), or(isNull(ANNUAL_REVENUE_CM), isNull(MINIMUM_PAT_PEC))), 0, ge(resultFromFormulaEval, MINIMUM_PAT_PEC))"
+      ],
+      "fields": [
+        "PAT_CM",
+        "MINIMUM_PAT_PEC",
+        "ANNUAL_REVENUE_CM"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "formula": [
+        "round((PAT_CM / ANNUAL_REVENUE_CM) * 100, 2)",
+        "ifElse(or(isNull(PAT_CM), isNull(ANNUAL_REVENUE_CM)), 0, resultFromFormulaEval)"
+      ],
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "PAT_CM",
+        "ANNUAL_REVENUE_CM"
+      ],
+      "keyToConcat": [
+        "PAT_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "MINIMUM_PAT_PEC"
+      ],
+      "keyToConcat": [
+        "MINIMUM_PAT_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_PAT_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_PAT_PEC"
+      ],
+      "keyName": "IMPORTANCE_PAT_PEC"
+    }
+  },
+  "PROBABILITY_PEP_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(ne(COMPANY_PEP_CM, 'Yes'), 0, 1)",
+        "ifElse(eq(CONSIDERED_PEP_PEC, 'Yes'), 1, 0)",
+        "and(eq(resultFromFormulaEvalStep1, 0), eq(resultFromFormulaEval, 0))",
+        "ifElse(and(eq(resultFromFormulaEval, 1), isNull(COMPANY_PEP_CM)), 0, resultFromFormulaEval)",
+        "ifElse(eq(resultFromFormulaEvalStep2, 1), 1, ifElse(eq(resultFromFormulaEval, 1), 1, 0))",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(isNull(CONSIDERED_PEP_PEC), 0, resultFromFormulaEval)"
+      ],
+      "fields": [
+        "COMPANY_PEP_CM",
+        "CONSIDERED_PEP_PEC"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(ne(COMPANY_PEP_CM, 'Yes'), 0, 1)",
+        "ifElse(eq(CONSIDERED_PEP_PEC, 'Yes'), 1, 0)",
+        "and(eq(resultFromFormulaEvalStep1, 0), eq(resultFromFormulaEvalStep2, 0))",
+        "ifElse(and(eq(resultFromFormulaEval, 1), isNull(COMPANY_PEP_CM)), 0, resultFromFormulaEval)",
+        "ifElse(eq(resultFromFormulaEvalStep2, 1), 1, ifElse(eq(resultFromFormulaEval, 1), 1, 0))",
+        "ifElse(isNull(CONSIDERED_PEP_PEC), 0, resultFromFormulaEval)"
+      ],
+      "fields": [
+        "COMPANY_PEP_CM",
+        "CONSIDERED_PEP_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "COMPANY_PEP_CM"
+      ],
+      "keyToConcat": [
+        "COMPANY_PEP_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "CONSIDERED_PEP_PEC"
+      ],
+      "keyToConcat": [
+        "CONSIDERED_PEP_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_CONSIDERED_PEP_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_CONSIDERED_PEP_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_DEBT_TO_EBITDA_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(lte(EBITDA_CM, 1e-24), 0, EXISTING_DEBT_CM / EBITDA_CM)",
+        "((resultFromFormulaEval - DEBT_TO_EBITDA_PEC) / abs(DEBT_TO_EBITDA_PEC)) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), 1, exp((resultFromFormulaEval * -1) / ((SCALING_FACTOR + 1) - (SCALING_FACTOR * weight))))",
+        "min(resultFromFormulaEval, 1)",
+        "(resultFromFormulaEval * weight) / totalWeight",
+        "ifElse(or(isNull(DEBT_TO_EBITDA_PEC), isNull(EXISTING_DEBT_CM)), 0, resultFromFormulaEval)"
+      ],
+      "fields": [
+        "EBITDA_CM",
+        "EXISTING_DEBT_CM",
+        "DEBT_TO_EBITDA_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(EXISTING_DEBT_CM / EBITDA_CM)",
+        "ifElse(le(EBITDA_CM, 0), 0, le(resultFromFormulaEval, DEBT_TO_EBITDA_PEC))",
+        "ifElse(or(isNull(EXISTING_DEBT_CM), isNull(DEBT_TO_EBITDA_PEC)), 0, resultFromFormulaEval)"
+      ],
+      "fields": [
+        "EBITDA_CM",
+        "EXISTING_DEBT_CM",
+        "DEBT_TO_EBITDA_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "EXISTING_DEBT_CM"
+      ],
+      "formula": [
+        "round((EXISTING_DEBT_CM / EBITDA_CM), 2)",
+        "ifElse(or(isNull(EXISTING_DEBT_CM), isNull(EBITDA_CM)), 0, resultFromFormulaEval)"
+      ],
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "EBITDA_CM",
+        "EXISTING_DEBT_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "DEBT_TO_EBITDA_PEC"
+      ],
+      "prefix": "",
+      "suffix": "",
+      "keyToConcat": [
+        "DEBT_TO_EBITDA_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_DEBT_TO_EBITDA_PEC"
+      ],
+      "prefix": "",
+      "suffix": "",
+      "keyToConcat": [
+        "IMPORTANCE_DEBT_TO_EBITDA_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_DIRECTOR_BUREAU_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(DIRECTOR_BUREAU_CM - DIRECTOR_CIBIL_PEC) / abs(DIRECTOR_CIBIL_PEC) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(DIRECTOR_BUREAU_CM), isNull(DIRECTOR_CIBIL_PEC)), 0, resultFromFormulaEvalStep4)"
+      ],
+      "fields": [
+        "DIRECTOR_BUREAU_CM",
+        "DIRECTOR_CIBIL_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(or(isNull(DIRECTOR_BUREAU_CM), isNull(DIRECTOR_CIBIL_PEC)), 0, ge(DIRECTOR_BUREAU_CM, DIRECTOR_CIBIL_PEC))"
+      ],
+      "fields": [
+        "DIRECTOR_BUREAU_CM",
+        "DIRECTOR_CIBIL_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "DIRECTOR_BUREAU_CM"
+      ],
+      "keyToConcat": [
+        "DIRECTOR_BUREAU_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "DIRECTOR_CIBIL_PEC"
+      ],
+      "keyToConcat": [
+        "DIRECTOR_CIBIL_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_DIRECTOR_CIBIL_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_DIRECTOR_CIBIL_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_DIRECTOR_ENQUIRIES_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(le(DIRECTOR_ENQUIRIES_CM, 1e-16), 1e-24, DIRECTOR_ENQUIRIES_CM)",
+        "((resultFromFormulaEval - DIRECTOR_ENQUIRIES_PEC) / abs(DIRECTOR_ENQUIRIES_PEC)) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), 1, exp((resultFromFormulaEval * -1)/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))))",
+        "min(resultFromFormulaEval, 1)",
+        "(resultFromFormulaEval * weight) / totalWeight",
+        "ifElse(or(isNull(DIRECTOR_ENQUIRIES_CM), isNull(DIRECTOR_ENQUIRIES_PEC)), 0, resultFromFormulaEvalStep5)"
+      ],
+      "fields": [
+        "DIRECTOR_ENQUIRIES_CM",
+        "DIRECTOR_ENQUIRIES_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(or(isNull(DIRECTOR_ENQUIRIES_CM), isNull(DIRECTOR_ENQUIRIES_PEC)), 0, le(DIRECTOR_ENQUIRIES_CM, DIRECTOR_ENQUIRIES_PEC))"
+      ],
+      "fields": [
+        "DIRECTOR_ENQUIRIES_CM",
+        "DIRECTOR_ENQUIRIES_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "DIRECTOR_ENQUIRIES_CM"
+      ],
+      "keyToConcat": [
+        "DIRECTOR_ENQUIRIES_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "DIRECTOR_ENQUIRIES_PEC"
+      ],
+      "keyToConcat": [
+        "DIRECTOR_ENQUIRIES_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_DIRECTOR_ENQUIRIES_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_DIRECTOR_ENQUIRIES_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_DIRECTOR_OVERDUE_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(le(DIRECTOR_OVERDUE_CM, 1e-16), 1e-24, DIRECTOR_OVERDUE_CM)",
+        "((resultFromFormulaEval - DIRECTOR_OVERVIEW_PEC) / abs(DIRECTOR_OVERVIEW_PEC)) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), 1, exp((resultFromFormulaEval * -1)/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))))",
+        "min(resultFromFormulaEval, 1)",
+        "(resultFromFormulaEval * weight) / totalWeight",
+        "ifElse(or(isNull(DIRECTOR_OVERDUE_CM), isNull(DIRECTOR_OVERVIEW_PEC)), 0, resultFromFormulaEvalStep5)"
+      ],
+      "fields": [
+        "DIRECTOR_OVERDUE_CM",
+        "DIRECTOR_OVERVIEW_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(or(isNull(DIRECTOR_OVERDUE_CM), isNull(DIRECTOR_OVERVIEW_PEC)), 0, le(DIRECTOR_OVERDUE_CM, DIRECTOR_OVERVIEW_PEC))"
+      ],
+      "fields": [
+        "DIRECTOR_OVERDUE_CM",
+        "DIRECTOR_OVERVIEW_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "",
+      "fields": [
+        "DIRECTOR_OVERDUE_CM"
+      ],
+      "keyToConcat": [
+        "DIRECTOR_OVERDUE_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "₹",
+      "suffix": "",
+      "fields": [
+        "DIRECTOR_OVERVIEW_PEC"
+      ],
+      "keyToConcat": [
+        "DIRECTOR_OVERVIEW_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_DIRECTOR_OVERVIEW_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_DIRECTOR_OVERVIEW_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_DSCR_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "safeDivide(EBITDA_CM, ANNUAL_DEBT_REPAYMENT_CM)",
+        "ifElse(le(resultFromFormulaEval, 1e-16), 1e-24, resultFromFormulaEval)",
+        "(resultFromFormulaEval - DEBT_SERVICE_PEC) / abs(DEBT_SERVICE_PEC) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), exp(resultFromFormulaEval/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))), log(resultFromFormulaEval / 2 + 10))",
+        "min(resultFromFormulaEval, 1)",
+        "resultFromFormulaEval * weight / totalWeight",
+        "ifElse(or(isNull(EBITDA_CM), or(isNull(ANNUAL_DEBT_REPAYMENT_CM), isNull(DEBT_SERVICE_PEC))), 0, resultFromFormulaEvalStep6)"
+      ],
+      "fields": [
+        "EBITDA_CM",
+        "ANNUAL_DEBT_REPAYMENT_CM",
+        "DEBT_SERVICE_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "safeDivide(EBITDA_CM, ANNUAL_DEBT_REPAYMENT_CM)",
+        "ifElse(or(isNull(EBITDA_CM), or(isNull(ANNUAL_DEBT_REPAYMENT_CM), isNull(DEBT_SERVICE_PEC))), 0, ge(resultFromFormulaEval, DEBT_SERVICE_PEC))"
+      ],
+      "fields": [
+        "EBITDA_CM",
+        "ANNUAL_DEBT_REPAYMENT_CM",
+        "DEBT_SERVICE_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "EBITDA_CM"
+      ],
+      "formula": [
+        "round(safeDivide(EBITDA_CM, ANNUAL_DEBT_REPAYMENT_CM), 2)",
+        "ifElse(or(isNull(EBITDA_CM), isNull(ANNUAL_DEBT_REPAYMENT_CM)), 0, resultFromFormulaEval)"
+      ],
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "EBITDA_CM",
+        "ANNUAL_DEBT_REPAYMENT_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "DEBT_SERVICE_PEC"
+      ],
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "DEBT_SERVICE_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "IMPORTANCE_DEBT_SERVICE_PEC"
+      ],
+      "fields": [
+        "IMPORTANCE_DEBT_SERVICE_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_GST_DEFAULTS_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(le(GST_DEFAULT_CM, 1e-16), 1e-24, GST_DEFAULT_CM)",
+        "((resultFromFormulaEval - GST_DEFAULTS_PEC) / abs(GST_DEFAULTS_PEC)) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), 1, exp((resultFromFormulaEval * -1)/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))))",
+        "min(resultFromFormulaEval, 1)",
+        "(resultFromFormulaEval * weight) / totalWeight",
+        "ifElse(or(isNull(GST_DEFAULT_CM), isNull(GST_DEFAULTS_PEC)), 0, resultFromFormulaEvalStep5)"
+      ],
+      "fields": [
+        "GST_DEFAULT_CM",
+        "GST_DEFAULTS_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(or(isNull(GST_DEFAULT_CM), isNull(GST_DEFAULTS_PEC)), 0, le(GST_DEFAULT_CM, GST_DEFAULTS_PEC))"
+      ],
+      "fields": [
+        "GST_DEFAULT_CM",
+        "GST_DEFAULTS_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "GST_DEFAULT_CM"
+      ],
+      "keyToConcat": [
+        "GST_DEFAULT_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "GST_DEFAULTS_PEC"
+      ],
+      "keyToConcat": [
+        "GST_DEFAULTS_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_GST_DEFAULTS_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_GST_DEFAULTS_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_REVENUE_RELATED_PARTY_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "(RELATED_PARTY_REVENUE_CM / ANNUAL_REVENUE_CM) * 100",
+        "ifElse(le(resultFromFormulaEval, 1e-16), 1e-24, resultFromFormulaEval)",
+        "((resultFromFormulaEval - REVENUE_RELATED_PARTY_PEC) / abs(REVENUE_RELATED_PARTY_PEC)) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), 1, exp((resultFromFormulaEval * -1)/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))))",
+        "min(resultFromFormulaEval, 1)",
+        "(resultFromFormulaEval * weight) / totalWeight",
+        "ifElse(or(isNull(RELATED_PARTY_REVENUE_CM), or(isNull(ANNUAL_REVENUE_CM), isNull(REVENUE_RELATED_PARTY_PEC))), 0, resultFromFormulaEvalStep6)"
+      ],
+      "fields": [
+        "RELATED_PARTY_REVENUE_CM",
+        "ANNUAL_REVENUE_CM",
+        "REVENUE_RELATED_PARTY_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "safeDivide(RELATED_PARTY_REVENUE_CM, ANNUAL_REVENUE_CM) * 100",
+        "ifElse(or(isNull(RELATED_PARTY_REVENUE_CM), or(isNull(ANNUAL_REVENUE_CM), isNull(REVENUE_RELATED_PARTY_PEC))), 0, le(resultFromFormulaEval, REVENUE_RELATED_PARTY_PEC))"
+      ],
+      "fields": [
+        "RELATED_PARTY_REVENUE_CM",
+        "ANNUAL_REVENUE_CM",
+        "REVENUE_RELATED_PARTY_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "RELATED_PARTY_REVENUE_CM"
+      ],
+      "formula": [
+        "round((RELATED_PARTY_REVENUE_CM / ANNUAL_REVENUE_CM) * 100, 2)",
+        "ifElse(or(isNull(RELATED_PARTY_REVENUE_CM), isNull(ANNUAL_REVENUE_CM)), 0, resultFromFormulaEval)"
+      ],
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "RELATED_PARTY_REVENUE_CM",
+        "ANNUAL_REVENUE_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "REVENUE_RELATED_PARTY_PEC"
+      ],
+      "prefix": "",
+      "suffix": "%",
+      "fields": [
+        "REVENUE_RELATED_PARTY_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "IMPORTANCE_REVENUE_RELATED_PARTY_PEC"
+      ],
+      "fields": [
+        "IMPORTANCE_REVENUE_RELATED_PARTY_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_TOL_TNW_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "safeDivide(BALANCE_SHEET_CM, (NET_WORTH_CM - INTANGIBLE_ASSETS_CM))",
+        "ifElse(le(resultFromFormulaEval, 1e-16), 1e-24, resultFromFormulaEval)",
+        "((resultFromFormulaEval - TOL_PEC) / abs(TOL_PEC)) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), 1, exp((resultFromFormulaEval * -1)/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))))",
+        "min(resultFromFormulaEval, 1)",
+        "(resultFromFormulaEval * weight) / totalWeight",
+        "ifElse(or(isNull(BALANCE_SHEET_CM), or(isNull(NET_WORTH_CM), or(isNull(INTANGIBLE_ASSETS_CM), isNull(TOL_PEC)))), 0, resultFromFormulaEvalStep6)"
+      ],
+      "fields": [
+        "BALANCE_SHEET_CM",
+        "NET_WORTH_CM",
+        "INTANGIBLE_ASSETS_CM",
+        "TOL_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "safeDivide(BALANCE_SHEET_CM, (NET_WORTH_CM - INTANGIBLE_ASSETS_CM))",
+        "ifElse(or(isNull(BALANCE_SHEET_CM), or(isNull(NET_WORTH_CM), or(isNull(INTANGIBLE_ASSETS_CM), isNull(TOL_PEC)))), 0, le(resultFromFormulaEval, TOL_PEC))"
+      ],
+      "fields": [
+        "BALANCE_SHEET_CM",
+        "NET_WORTH_CM",
+        "INTANGIBLE_ASSETS_CM",
+        "TOL_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "BALANCE_SHEET_CM"
+      ],
+      "formula": [
+        "round(safeDivide(BALANCE_SHEET_CM, (NET_WORTH_CM - INTANGIBLE_ASSETS_CM)), 2)",
+        "ifElse(or(isNull(BALANCE_SHEET_CM), isNull(NET_WORTH_CM)), 0, resultFromFormulaEval)"
+      ],
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "BALANCE_SHEET_CM",
+        "NET_WORTH_CM",
+        "INTANGIBLE_ASSETS_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "TOL_PEC"
+      ],
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "TOL_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "keyToConcat": [
+        "IMPORTANCE_TOL_PEC"
+      ],
+      "fields": [
+        "IMPORTANCE_TOL_PEC"
+      ]
+    }
+  },
+  "PROBABILITY_EPF_DEFAULTS_METRIC": {
+    "SCORE": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(le(EPF_DEFAULT_CM, 1e-16), 1e-24, EPF_DEFAULT_CM)",
+        "((resultFromFormulaEval - EPF_DEFAULTS_PEC) / abs(EPF_DEFAULTS_PEC)) * 100",
+        "ifElse(le(resultFromFormulaEval, 0), 1, exp((resultFromFormulaEval * -1)/((SCALING_FACTOR+1)-(SCALING_FACTOR*weight))))",
+        "min(resultFromFormulaEval, 1)",
+        "(resultFromFormulaEval * weight) / totalWeight",
+        "ifElse(or(isNull(EPF_DEFAULT_CM), isNull(EPF_DEFAULTS_PEC)), 0, resultFromFormulaEvalStep5)"
+      ],
+      "fields": [
+        "EPF_DEFAULT_CM",
+        "EPF_DEFAULTS_PEC",
+        "SCALING_FACTOR"
+      ]
+    },
+    "STATUS": {
+      "evaluationStrategy": "MULTI_STEP_FORMULA",
+      "formula": [
+        "ifElse(or(isNull(EPF_DEFAULT_CM), isNull(EPF_DEFAULTS_PEC)), 0, le(EPF_DEFAULT_CM, EPF_DEFAULTS_PEC))"
+      ],
+      "fields": [
+        "EPF_DEFAULT_CM",
+        "EPF_DEFAULTS_PEC"
+      ]
+    },
+    "COMPANY_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "EPF_DEFAULT_CM"
+      ],
+      "keyToConcat": [
+        "EPF_DEFAULT_CM"
+      ]
+    },
+    "PEC_VALUE": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "prefix": "",
+      "suffix": "",
+      "fields": [
+        "EPF_DEFAULTS_PEC"
+      ],
+      "keyToConcat": [
+        "EPF_DEFAULTS_PEC"
+      ]
+    },
+    "IMPORTANCE_OF_METRIC_FROM_PEC": {
+      "evaluationStrategy": "PREFIX_SUFFIX_STRING",
+      "fields": [
+        "IMPORTANCE_EPF_DEFAULTS_PEC"
+      ],
+      "keyToConcat": [
+        "IMPORTANCE_EPF_DEFAULTS_PEC"
+      ]
+    }
+  }
+}

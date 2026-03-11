@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probability Formula Tester</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/mathjs@12.4.3/lib/browser/math.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<style>
+  :root { --sidebar-w: 260px; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #0f172a; color: #e2e8f0; }
+  .sidebar { width: var(--sidebar-w); min-height: 100vh; background: #1e293b; border-right: 1px solid #334155; }
+  .main { margin-left: var(--sidebar-w); min-height: 100vh; }
+  .tab-btn { padding: 10px 16px; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s; color: #94a3b8; white-space: nowrap; }
+  .tab-btn.active { border-color: #6366f1; color: #6366f1; font-weight: 600; }
+  .tab-btn:hover { color: #e2e8f0; }
+  .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; }
+  .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .badge-critical { background: #7f1d1d; color: #fca5a5; }
+  .badge-high     { background: #7c3aed22; color: #a78bfa; }
+  .badge-medium   { background: #d97706; color: #fde68a; }
+  .badge-low      { background: #065f46; color: #6ee7b7; }
+  .badge-not-needed { background: #334155; color: #94a3b8; }
+  .badge-pass { background: #065f46; color: #6ee7b7; }
+  .badge-fail { background: #7f1d1d; color: #fca5a5; }
+  .badge-skip { background: #334155; color: #94a3b8; }
+  .step-row { border-left: 2px solid #334155; padding-left: 12px; margin: 6px 0; }
+  .step-row.good { border-color: #10b981; }
+  .step-row.bad  { border-color: #ef4444; }
+  .step-row.zero { border-color: #64748b; }
+  .metric-row { padding: 10px 14px; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .metric-row:hover { background: #334155; }
+  .metric-row.selected { background: #312e81; border-left: 3px solid #6366f1; }
+  .input-group { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .input-group label { width: 280px; font-size: 12px; color: #94a3b8; flex-shrink: 0; font-family: monospace; }
+  .input-group input, .input-group select { background: #0f172a; border: 1px solid #334155; color: #e2e8f0; border-radius: 6px; padding: 4px 8px; font-size: 13px; flex: 1; outline: none; }
+  .input-group input:focus, .input-group select:focus { border-color: #6366f1; }
+  .formula-step { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 8px 12px; font-family: monospace; font-size: 12px; color: #a5f3fc; margin: 4px 0; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+  .btn-primary { background: #6366f1; color: white; }
+  .btn-primary:hover { background: #4f46e5; }
+  .btn-secondary { background: #334155; color: #e2e8f0; }
+  .btn-secondary:hover { background: #475569; }
+  .btn-danger { background: #991b1b; color: #fca5a5; }
+  .btn-danger:hover { background: #7f1d1d; }
+  .btn-success { background: #065f46; color: #6ee7b7; }
+  .btn-success:hover { background: #064e3b; }
+  .score-display { font-size: 48px; font-weight: 800; }
+  .score-good { color: #10b981; }
+  .score-mid  { color: #f59e0b; }
+  .score-bad  { color: #ef4444; }
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 11px; background: #1e293b; border: 1px solid #334155; color: #94a3b8; font-family: monospace; }
+  .CodeMirror { background: #0f172a !important; color: #e2e8f0; height: auto; min-height: 200px; font-size: 12px; border-radius: 8px; }
+  .CodeMirror-scroll { max-height: 500px; }
+  .tooltip { position: relative; }
+  .tooltip:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 0; background: #1e293b; border: 1px solid #475569; padding: 4px 8px; border-radius: 6px; font-size: 11px; white-space: nowrap; z-index: 10; color: #e2e8f0; }
+  details > summary { cursor: pointer; list-style: none; }
+  details > summary::before { content: '▶ '; font-size: 10px; }
+  details[open] > summary::before { content: '▼ '; }
+  .spinner { width: 16px; height: 16px; border: 2px solid #334155; border-top-color: #6366f1; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .diff-better { background: #065f46; color: #6ee7b7; padding: 2px 8px; border-radius: 4px; }
+  .diff-worse  { background: #7f1d1d; color: #fca5a5; padding: 2px 8px; border-radius: 4px; }
+  .diff-same   { background: #334155; color: #94a3b8; padding: 2px 8px; border-radius: 4px; }
+</style>
+</head>
+<body class="h-full">
+
+<!-- ═══════════════════════════════════════════════════════════ SIDEBAR -->
+<div class="sidebar fixed top-0 left-0 flex flex-col">
+  <div class="p-5 border-b border-slate-700">
+    <div class="text-indigo-400 font-bold text-base">⚗️ Formula Tester</div>
+    <div class="text-xs text-slate-500 mt-1">DebtOptions Probability Engine</div>
+  </div>
+  <nav class="flex flex-col gap-1 p-3 flex-1">
+    <button onclick="showTab('metrics')" id="nav-metrics" class="nav-btn text-left px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 transition-all">📐 Metric Library</button>
+    <button onclick="showTab('testcases')" id="nav-testcases" class="nav-btn text-left px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 transition-all">🧪 Test Cases</button>
+    <button onclick="showTab('runner')" id="nav-runner" class="nav-btn text-left px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 transition-all">▶️ Run & Trace</button>
+    <button onclick="showTab('compare')" id="nav-compare" class="nav-btn text-left px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 transition-all">⚖️ Comparator</button>
+    <button onclick="showTab('new-metric')" id="nav-new-metric" class="nav-btn text-left px-4 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-slate-700 transition-all">➕ New Metric</button>
+  </nav>
+  <div class="p-4 border-t border-slate-700 text-xs text-slate-500 space-y-1">
+    <div>📦 <span id="metric-count">31</span> metrics loaded</div>
+    <div>🧪 <span id="tc-count">0</span> test cases</div>
+    <button onclick="exportAllData()" class="text-indigo-400 hover:text-indigo-300 mt-2 block">↓ Export All</button>
+    <label class="text-indigo-400 hover:text-indigo-300 cursor-pointer block">↑ Import
+      <input type="file" accept=".json" onchange="importAllData(event)" class="hidden">
+    </label>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ MAIN -->
+<div class="main p-6">
+
+<!-- ═══════════════ TAB: METRIC LIBRARY ═══════════════ -->
+<div id="tab-metrics" class="tab-content">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-xl font-bold text-white">📐 Metric Library</h1>
+      <p class="text-slate-400 text-sm mt-1">View and edit formula configs for each probability metric. Changes are saved locally.</p>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="resetCurrentMetric()" class="btn btn-secondary">↺ Reset Metric</button>
+      <button onclick="saveCurrentMetric()" class="btn btn-primary">💾 Save Changes</button>
+    </div>
+  </div>
+  <div class="flex gap-4">
+    <!-- Metric list -->
+    <div class="card p-3 flex-shrink-0" style="width:260px">
+      <input type="text" id="metric-search" placeholder="Search metrics..." oninput="filterMetrics(this.value)"
+        class="w-full mb-2 px-3 py-1.5 text-sm rounded-lg bg-slate-900 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500">
+      <div id="metric-list" class="space-y-0.5 overflow-y-auto" style="max-height:calc(100vh - 220px)"></div>
+    </div>
+    <!-- Editor -->
+    <div class="card flex-1 p-4">
+      <div id="metric-editor-header" class="mb-3">
+        <div class="text-slate-400 text-sm">Select a metric from the list to edit its formula config.</div>
+      </div>
+      <div id="metric-editor-wrap" class="hidden">
+        <div class="flex items-center gap-3 mb-4 flex-wrap">
+          <div id="metric-editor-title" class="font-bold text-white text-base"></div>
+          <span id="metric-strategy-badge" class="badge badge-medium"></span>
+          <span id="metric-override-badge" class="badge badge-high hidden">✏️ Modified</span>
+        </div>
+        <!-- Formula steps (human-friendly editor) -->
+        <div id="formula-steps-editor"></div>
+        <div class="mt-4">
+          <div class="text-xs text-slate-500 mb-2">Full JSON Config (advanced)</div>
+          <textarea id="metric-json-editor" class="w-full font-mono text-xs bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-300 h-64 outline-none focus:border-indigo-500 resize-y"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ TAB: TEST CASES ═══════════════ -->
+<div id="tab-testcases" class="tab-content hidden">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-xl font-bold text-white">🧪 Test Cases</h1>
+      <p class="text-slate-400 text-sm mt-1">Create and manage test cases with Company Metrics + PEC values.</p>
+    </div>
+    <button onclick="newTestCase()" class="btn btn-primary">+ New Test Case</button>
+  </div>
+  <div class="flex gap-4">
+    <!-- TC list -->
+    <div class="card p-3 flex-shrink-0" style="width:280px">
+      <div id="tc-list" class="space-y-1 overflow-y-auto" style="max-height:calc(100vh - 200px)"></div>
+    </div>
+    <!-- TC editor -->
+    <div class="card flex-1 p-5" id="tc-editor-panel">
+      <div class="text-slate-400 text-sm" id="tc-editor-placeholder">Select or create a test case.</div>
+      <div id="tc-editor" class="hidden">
+        <div class="flex gap-3 mb-4 items-start">
+          <div class="flex-1">
+            <label class="text-xs text-slate-400">Test Case Name</label>
+            <input id="tc-name" type="text" class="w-full mt-1 px-3 py-1.5 text-sm rounded-lg bg-slate-900 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500">
+          </div>
+          <div class="flex gap-2 mt-5">
+            <button onclick="saveCurrentTestCase()" class="btn btn-primary">💾 Save</button>
+            <button onclick="deleteCurrentTestCase()" class="btn btn-danger">🗑</button>
+            <button onclick="runTestCase()" class="btn btn-success">▶ Run All Metrics</button>
+          </div>
+        </div>
+        <label class="text-xs text-slate-400">Description</label>
+        <input id="tc-desc" type="text" class="w-full mt-1 mb-4 px-3 py-1.5 text-sm rounded-lg bg-slate-900 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500">
+
+        <div class="grid grid-cols-2 gap-4">
+          <!-- CM Values -->
+          <div>
+            <div class="text-sm font-semibold text-white mb-2">Company Metrics <span class="text-slate-500 font-normal">(_CM values)</span></div>
+            <div id="tc-cm-fields" class="space-y-1 overflow-y-auto" style="max-height:320px"></div>
+            <button onclick="addCmField()" class="btn btn-secondary mt-2 text-xs">+ Add CM field</button>
+          </div>
+          <!-- PEC Values -->
+          <div>
+            <div class="text-sm font-semibold text-white mb-2">PEC Values <span class="text-slate-500 font-normal">(_PEC values)</span></div>
+            <div id="tc-pec-fields" class="space-y-1 overflow-y-auto" style="max-height:320px"></div>
+            <button onclick="addPecField()" class="btn btn-secondary mt-2 text-xs">+ Add PEC field</button>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-white mb-2">Metric Importance <span class="text-slate-500 font-normal">(PEC importance per metric)</span></div>
+          <div id="tc-importance-fields" class="grid grid-cols-2 gap-x-6 gap-y-1 max-h-64 overflow-y-auto"></div>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-4">
+          <div>
+            <div class="text-sm font-semibold text-white mb-2">Array Fields <span class="text-slate-500 font-normal">(security, sector, state)</span></div>
+            <div id="tc-array-fields"></div>
+          </div>
+          <div>
+            <div class="text-sm font-semibold text-white mb-2">Security Value Map</div>
+            <textarea id="tc-security-map" rows="4" class="w-full font-mono text-xs bg-slate-900 border border-slate-700 rounded-lg p-2 text-slate-300 outline-none focus:border-indigo-500 resize-y" placeholder='{"Charge On Current Assets": 1.1}'></textarea>
+            <div class="text-xs text-slate-500 mt-1">JSON object: security name → numeric value for tier matching</div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="text-sm font-semibold text-white mb-2">Constants</div>
+          <div class="input-group">
+            <label>SCALING_FACTOR</label>
+            <input type="number" id="tc-scaling-factor" value="2" step="0.1">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ TAB: RUNNER ═══════════════ -->
+<div id="tab-runner" class="tab-content hidden">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-xl font-bold text-white">▶️ Run & Trace</h1>
+      <p class="text-slate-400 text-sm mt-1">Execute metrics against a test case and see step-by-step evaluation.</p>
+    </div>
+    <div class="flex gap-3 items-center">
+      <select id="runner-tc-select" class="px-3 py-2 text-sm rounded-lg bg-slate-800 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500">
+        <option value="">-- Select Test Case --</option>
+      </select>
+      <select id="runner-metric-select" class="px-3 py-2 text-sm rounded-lg bg-slate-800 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500">
+        <option value="ALL">All Metrics</option>
+      </select>
+      <button onclick="runTrace()" class="btn btn-primary">▶ Run</button>
+    </div>
+  </div>
+
+  <!-- Summary card -->
+  <div id="runner-summary" class="hidden mb-6">
+    <div class="card p-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-slate-400 text-sm mb-1">Final Probability Score</div>
+          <div id="runner-final-score" class="score-display">–</div>
+          <div class="text-slate-500 text-xs mt-1" id="runner-score-breakdown"></div>
+        </div>
+        <div class="text-right">
+          <div class="text-slate-400 text-sm mb-1">Total Weight</div>
+          <div id="runner-total-weight" class="text-2xl font-bold text-white">–</div>
+          <div class="text-slate-400 text-sm mt-2">Reduction Multiplier</div>
+          <div id="runner-reduction" class="text-2xl font-bold text-white">–</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metric traces -->
+  <div id="runner-traces" class="space-y-3"></div>
+</div>
+
+<!-- ═══════════════ TAB: COMPARATOR ═══════════════ -->
+<div id="tab-compare" class="tab-content hidden">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-xl font-bold text-white">⚖️ Formula Comparator</h1>
+      <p class="text-slate-400 text-sm mt-1">Compare original vs modified formula across test cases.</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-3 gap-4 mb-4">
+    <div>
+      <label class="text-xs text-slate-400">Metric to compare</label>
+      <select id="cmp-metric-select" onchange="loadComparatorMetric()" class="w-full mt-1 px-3 py-2 text-sm rounded-lg bg-slate-800 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500"></select>
+    </div>
+    <div>
+      <label class="text-xs text-slate-400">Test Case</label>
+      <select id="cmp-tc-select" class="w-full mt-1 px-3 py-2 text-sm rounded-lg bg-slate-800 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500">
+        <option value="ALL">All Test Cases</option>
+      </select>
+    </div>
+    <div class="flex items-end">
+      <button onclick="runComparison()" class="btn btn-primary w-full">⚖️ Compare</button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 mb-4">
+    <div class="card p-4">
+      <div class="text-sm font-semibold text-white mb-2">Original Formula <span class="text-slate-500 font-normal">(from config)</span></div>
+      <div id="cmp-original-formulas" class="space-y-1"></div>
+    </div>
+    <div class="card p-4">
+      <div class="text-sm font-semibold text-white mb-2 flex items-center justify-between">
+        <span>Modified Formula <span class="text-indigo-400 font-normal">(edit below)</span></span>
+        <button onclick="resetComparatorFormula()" class="text-xs text-slate-400 hover:text-slate-200">↺ Reset</button>
+      </div>
+      <div id="cmp-modified-formulas" class="space-y-1"></div>
+    </div>
+  </div>
+
+  <!-- Results table -->
+  <div id="cmp-results" class="card p-4 hidden">
+    <div class="text-sm font-semibold text-white mb-3">Comparison Results</div>
+    <div id="cmp-chart-wrap" class="mb-4 hidden"><canvas id="cmp-chart" height="80"></canvas></div>
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-slate-400 text-xs border-b border-slate-700">
+          <th class="pb-2">Test Case</th>
+          <th class="pb-2">Original Score</th>
+          <th class="pb-2">New Score</th>
+          <th class="pb-2">Delta</th>
+        </tr>
+      </thead>
+      <tbody id="cmp-table-body" class="divide-y divide-slate-800"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════ TAB: NEW METRIC ═══════════════ -->
+<div id="tab-new-metric" class="tab-content hidden">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-xl font-bold text-white">➕ Add New Metric</h1>
+      <p class="text-slate-400 text-sm mt-1">Define a new probability metric with custom formula steps.</p>
+    </div>
+    <button onclick="saveNewMetric()" class="btn btn-primary">💾 Add Metric</button>
+  </div>
+  <div class="card p-6 max-w-3xl">
+    <div class="space-y-4">
+      <div>
+        <label class="text-xs text-slate-400">Metric Key Name (e.g. PROBABILITY_MY_NEW_METRIC)</label>
+        <input id="new-metric-name" type="text" placeholder="PROBABILITY_MY_NEW_METRIC"
+          class="w-full mt-1 px-3 py-2 text-sm rounded-lg bg-slate-900 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500 font-mono">
+      </div>
+      <div>
+        <label class="text-xs text-slate-400">Importance PEC Key (e.g. IMPORTANCE_MY_METRIC_PEC)</label>
+        <input id="new-metric-importance-key" type="text" placeholder="IMPORTANCE_MY_METRIC_PEC"
+          class="w-full mt-1 px-3 py-2 text-sm rounded-lg bg-slate-900 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500 font-mono">
+      </div>
+      <div>
+        <label class="text-xs text-slate-400">Evaluation Strategy</label>
+        <select id="new-metric-strategy" class="w-full mt-1 px-3 py-2 text-sm rounded-lg bg-slate-800 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500">
+          <option value="MULTI_STEP_FORMULA">MULTI_STEP_FORMULA</option>
+          <option value="ARRAY_MATCHING">ARRAY_MATCHING</option>
+          <option value="STRING_ARRAY_MATCHING">STRING_ARRAY_MATCHING</option>
+        </select>
+      </div>
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs text-slate-400">Formula Steps (one per line)</label>
+          <button onclick="addNewMetricStep()" class="text-xs text-indigo-400 hover:text-indigo-300">+ Add Step</button>
+        </div>
+        <div id="new-metric-steps" class="space-y-2"></div>
+        <div class="text-xs text-slate-500 mt-2">
+          Available vars: <span class="tag">resultFromFormulaEval</span> <span class="tag">resultFromFormulaEvalStep1</span> <span class="tag">weight</span> <span class="tag">totalWeight</span>
+          <br>Functions: <span class="tag">ifElse</span> <span class="tag">ge le gt lt eq ne</span> <span class="tag">and and3 and4 or not</span> <span class="tag">isNull isNotNull</span> <span class="tag">safeDivide round min max</span>
+        </div>
+      </div>
+      <div>
+        <label class="text-xs text-slate-400">Display Suffix (e.g. yrs, %, Cr)</label>
+        <input id="new-metric-suffix" type="text" placeholder="Cr"
+          class="w-full mt-1 px-3 py-2 text-sm rounded-lg bg-slate-900 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500">
+      </div>
+      <div>
+        <label class="text-xs text-slate-400">CM Field Name (for COMPANY_VALUE display)</label>
+        <input id="new-metric-cm-field" type="text" placeholder="MY_VALUE_CM"
+          class="w-full mt-1 px-3 py-2 text-sm rounded-lg bg-slate-900 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500 font-mono">
+      </div>
+      <div>
+        <label class="text-xs text-slate-400">PEC Field Name (for PEC_VALUE display)</label>
+        <input id="new-metric-pec-field" type="text" placeholder="MINIMUM_MY_VALUE_PEC"
+          class="w-full mt-1 px-3 py-2 text-sm rounded-lg bg-slate-900 border border-slate-600 text-slate-200 outline-none focus:border-indigo-500 font-mono">
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ═══════════════════════════════════════════════════════════ SCRIPTS -->
+<script type="module">
+import { initMath } from './engine/evaluator.js';
+import { calculateProbabilityScore, PEC_IMPORTANCE_VALUE_MAP } from './engine/scorer.js';
+import { loadTestCases, saveTestCase, deleteTestCase, saveMetricOverride, deleteMetricOverride, loadMetricOverrides, exportAll, importAll, generateId } from './ui/storage.js';
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+initMath(math);
+
+let METRICS_CONFIG = {};
+let ALL_TEST_CASES = [];
+let selectedMetricName = null;
+let selectedTestCaseId = null;
+let comparatorModifiedFormulas = [];
+let comparatorMetricName = null;
+let newMetricStepCount = 1;
+let cmpChart = null;
+
+// ── Load data ────────────────────────────────────────────────────────────────
+async function loadData() {
+  const [metricsResp, tcResp] = await Promise.all([
+    fetch('./data/metrics.json'),
+    fetch('./data/sample-testcases.json'),
+  ]);
+  const baseMetrics = await metricsResp.json();
+  const sampleTcs = await tcResp.json();
+
+  // Apply saved overrides
+  const overrides = loadMetricOverrides();
+  METRICS_CONFIG = { ...baseMetrics };
+  for (const [k, v] of Object.entries(overrides)) {
+    METRICS_CONFIG[k] = v;
+  }
+
+  ALL_TEST_CASES = loadTestCases(sampleTcs);
+  renderAll();
+}
+
+function renderAll() {
+  renderMetricList();
+  renderTcList();
+  renderRunnerSelects();
+  renderComparatorSelects();
+  document.getElementById('metric-count').textContent = Object.keys(METRICS_CONFIG).length;
+  document.getElementById('tc-count').textContent = ALL_TEST_CASES.length;
+}
+
+// ── Tab navigation ────────────────────────────────────────────────────────────
+window.showTab = function(name) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('bg-indigo-900', 'text-indigo-300'));
+  document.getElementById('tab-' + name).classList.remove('hidden');
+  document.getElementById('nav-' + name).classList.add('bg-indigo-900', 'text-indigo-300');
+};
+
+// ── Metric Library ────────────────────────────────────────────────────────────
+function renderMetricList(filter = '') {
+  const overrides = loadMetricOverrides();
+  const ul = document.getElementById('metric-list');
+  ul.innerHTML = '';
+  for (const name of Object.keys(METRICS_CONFIG)) {
+    const short = name.replace('PROBABILITY_', '').replace('_METRIC', '');
+    if (filter && !short.toLowerCase().includes(filter.toLowerCase())) continue;
+    const modified = overrides[name] ? '✏️ ' : '';
+    const div = document.createElement('div');
+    div.className = 'metric-row' + (name === selectedMetricName ? ' selected' : '');
+    div.textContent = modified + short.replace(/_/g, ' ');
+    div.title = name;
+    div.onclick = () => selectMetric(name);
+    ul.appendChild(div);
+  }
+}
+
+window.filterMetrics = function(val) { renderMetricList(val); };
+
+function selectMetric(name) {
+  selectedMetricName = name;
+  renderMetricList(document.getElementById('metric-search').value);
+  const cfg = METRICS_CONFIG[name];
+  const overrides = loadMetricOverrides();
+  const isOverride = !!overrides[name];
+  document.getElementById('metric-editor-header').classList.add('hidden');
+  document.getElementById('metric-editor-wrap').classList.remove('hidden');
+  document.getElementById('metric-editor-title').textContent = name.replace('PROBABILITY_', '').replace('_METRIC', '').replace(/_/g, ' ');
+  const strategy = cfg.SCORE?.evaluationStrategy || cfg.MATCHED_CONFIG?.evaluationStrategy || '–';
+  const badge = document.getElementById('metric-strategy-badge');
+  badge.textContent = strategy;
+  badge.className = 'badge ' + (strategy === 'MULTI_STEP_FORMULA' ? 'badge-high' : strategy === 'ARRAY_MATCHING' ? 'badge-medium' : 'badge-not-needed');
+  const overrideBadge = document.getElementById('metric-override-badge');
+  overrideBadge.classList.toggle('hidden', !isOverride);
+  // Formula steps
+  renderFormulaStepsEditor(cfg);
+  // JSON editor
+  document.getElementById('metric-json-editor').value = JSON.stringify(cfg, null, 2);
+}
+
+function renderFormulaStepsEditor(cfg) {
+  const el = document.getElementById('formula-steps-editor');
+  const formulas = cfg.SCORE?.formula || cfg.MATCHED_CONFIG?.formula || [];
+  const fields = cfg.SCORE?.fields || cfg.MATCHED_CONFIG?.fields || [];
+  let html = `<div class="text-xs text-slate-500 mb-1">Fields used: ${fields.map(f => `<span class="tag">${f}</span>`).join(' ')}</div>`;
+  html += `<div class="text-xs font-semibold text-slate-400 mb-1 mt-3">SCORE Formula Steps:</div>`;
+  formulas.forEach((f, i) => {
+    html += `<div class="formula-step">Step ${i+1}: ${escapeHtml(f)}</div>`;
+  });
+  if (cfg.STATUS?.formula) {
+    html += `<div class="text-xs font-semibold text-slate-400 mb-1 mt-3">STATUS Formula:</div>`;
+    html += `<div class="formula-step">${escapeHtml(cfg.STATUS.formula[0])}</div>`;
+  }
+  el.innerHTML = html;
+}
+
+window.saveCurrentMetric = function() {
+  if (!selectedMetricName) return;
+  try {
+    const raw = document.getElementById('metric-json-editor').value;
+    const cfg = JSON.parse(raw);
+    METRICS_CONFIG[selectedMetricName] = cfg;
+    saveMetricOverride(selectedMetricName, cfg);
+    selectMetric(selectedMetricName);
+    renderMetricList(document.getElementById('metric-search').value);
+    toast('✓ Metric saved', 'success');
+  } catch (e) {
+    toast('✗ Invalid JSON: ' + e.message, 'error');
+  }
+};
+
+window.resetCurrentMetric = function() {
+  if (!selectedMetricName) return;
+  deleteMetricOverride(selectedMetricName);
+  // Reload from original
+  fetch('./data/metrics.json').then(r => r.json()).then(base => {
+    METRICS_CONFIG[selectedMetricName] = base[selectedMetricName];
+    selectMetric(selectedMetricName);
+    renderMetricList();
+    toast('↺ Reset to original', 'info');
+  });
+};
+
+// ── Test Cases ────────────────────────────────────────────────────────────────
+function renderTcList() {
+  const ul = document.getElementById('tc-list');
+  ul.innerHTML = '';
+  ALL_TEST_CASES.forEach(tc => {
+    const div = document.createElement('div');
+    div.className = 'metric-row' + (tc.id === selectedTestCaseId ? ' selected' : '');
+    div.innerHTML = `<div class="text-sm font-medium">${escapeHtml(tc.name)}</div><div class="text-xs text-slate-500">${(tc.description||'').slice(0,50)}</div>`;
+    div.onclick = () => selectTestCase(tc.id);
+    ul.appendChild(div);
+  });
+}
+
+function selectTestCase(id) {
+  selectedTestCaseId = id;
+  const tc = ALL_TEST_CASES.find(t => t.id === id);
+  if (!tc) return;
+  renderTcList();
+  document.getElementById('tc-editor-placeholder').classList.add('hidden');
+  document.getElementById('tc-editor').classList.remove('hidden');
+  document.getElementById('tc-name').value = tc.name;
+  document.getElementById('tc-desc').value = tc.description || '';
+  renderCmFields(tc.companyMetrics || {});
+  renderPecFields(tc.pecValues || {});
+  renderImportanceFields(tc.pecImportance || {});
+  renderArrayFields(tc.arrayFields || {});
+  document.getElementById('tc-security-map').value = JSON.stringify(tc.securityValueMap || {}, null, 2);
+  document.getElementById('tc-scaling-factor').value = tc.constants?.SCALING_FACTOR ?? 2;
+}
+
+function renderCmFields(cm) {
+  const el = document.getElementById('tc-cm-fields');
+  el.innerHTML = '';
+  for (const [k, v] of Object.entries(cm)) addKeyValueRow(el, k, v, 'cm');
+}
+
+function renderPecFields(pec) {
+  const el = document.getElementById('tc-pec-fields');
+  el.innerHTML = '';
+  for (const [k, v] of Object.entries(pec)) addKeyValueRow(el, k, v, 'pec');
+}
+
+function addKeyValueRow(container, key, value, prefix) {
+  const row = document.createElement('div');
+  row.className = 'input-group';
+  const displayVal = value === null ? '' : value;
+  row.innerHTML = `
+    <input type="text" class="field-key font-mono text-xs" style="width:200px;flex-shrink:0" value="${escapeHtml(String(key))}" placeholder="VAR_NAME">
+    <input type="text" class="field-val text-xs" placeholder="value or null" value="${escapeHtml(String(displayVal))}">
+    <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-red-400 text-lg leading-none flex-shrink-0">×</button>
+  `;
+  container.appendChild(row);
+}
+
+window.addCmField = function() { addKeyValueRow(document.getElementById('tc-cm-fields'), '', '', 'cm'); };
+window.addPecField = function() { addKeyValueRow(document.getElementById('tc-pec-fields'), '', '', 'pec'); };
+
+function renderImportanceFields(imp) {
+  const el = document.getElementById('tc-importance-fields');
+  el.innerHTML = '';
+  const importanceLevels = ['Critical','High','Medium','Low','Not Needed'];
+  for (const metricName of Object.keys(METRICS_CONFIG)) {
+    const short = metricName.replace('PROBABILITY_','').replace('_METRIC','').replace(/_/g,' ');
+    const cur = imp[metricName] || 'Not Needed';
+    const row = document.createElement('div');
+    row.className = 'input-group';
+    row.innerHTML = `
+      <label style="width:200px" title="${metricName}">${short}</label>
+      <select class="importance-select text-xs" data-metric="${metricName}">
+        ${importanceLevels.map(l => `<option ${l===cur?'selected':''}>${l}</option>`).join('')}
+      </select>
+    `;
+    el.appendChild(row);
+  }
+}
+
+function renderArrayFields(arr) {
+  const el = document.getElementById('tc-array-fields');
+  el.innerHTML = `
+    <div class="space-y-2 text-sm">
+      <div><label class="text-xs text-slate-400">SECURITY_TYPE_CM (comma-separated)</label>
+        <input id="arr-security-cm" class="w-full mt-0.5 px-2 py-1 text-xs rounded bg-slate-900 border border-slate-700 text-slate-200 outline-none" value="${(arr.SECURITY_TYPE_CM||[]).join(', ')}"></div>
+      <div><label class="text-xs text-slate-400">MANDATORY_SECURITY_OFFERED_PEC (one group per line, comma-sep items)</label>
+        <textarea id="arr-security-pec" rows="3" class="w-full mt-0.5 px-2 py-1 text-xs rounded bg-slate-900 border border-slate-700 text-slate-200 outline-none font-mono resize-none">${(arr.MANDATORY_SECURITY_OFFERED_PEC||[]).map(g=>g.join(', ')).join('\n')}</textarea></div>
+      <div><label class="text-xs text-slate-400">COMPANY_SECTOR_CM</label>
+        <input id="arr-sector-cm" class="w-full mt-0.5 px-2 py-1 text-xs rounded bg-slate-900 border border-slate-700 text-slate-200 outline-none" value="${arr.COMPANY_SECTOR_CM||''}"></div>
+      <div><label class="text-xs text-slate-400">POSITIVE_SECTOR_PEC (comma-separated)</label>
+        <input id="arr-sector-pec" class="w-full mt-0.5 px-2 py-1 text-xs rounded bg-slate-900 border border-slate-700 text-slate-200 outline-none" value="${(arr.POSITIVE_SECTOR_PEC||[]).join(', ')}"></div>
+      <div><label class="text-xs text-slate-400">HQ_LOCATION_STATE_CM</label>
+        <input id="arr-state-cm" class="w-full mt-0.5 px-2 py-1 text-xs rounded bg-slate-900 border border-slate-700 text-slate-200 outline-none" value="${arr.HQ_LOCATION_STATE_CM||''}"></div>
+      <div><label class="text-xs text-slate-400">STATES_PEC (comma-separated)</label>
+        <input id="arr-states-pec" class="w-full mt-0.5 px-2 py-1 text-xs rounded bg-slate-900 border border-slate-700 text-slate-200 outline-none" value="${(arr.STATES_PEC||[]).join(', ')}"></div>
+    </div>`;
+}
+
+window.newTestCase = function() {
+  const tc = {
+    id: generateId(),
+    name: 'New Test Case',
+    description: '',
+    companyMetrics: {},
+    pecValues: {},
+    pecImportance: Object.fromEntries(Object.keys(METRICS_CONFIG).map(k => [k, 'Not Needed'])),
+    constants: { SCALING_FACTOR: 2 },
+    arrayFields: { SECURITY_TYPE_CM: [], MANDATORY_SECURITY_OFFERED_PEC: [], COMPANY_SECTOR_CM: '', POSITIVE_SECTOR_PEC: [], HQ_LOCATION_STATE_CM: '', STATES_PEC: [] },
+    securityValueMap: {},
+  };
+  ALL_TEST_CASES = saveTestCase(tc, ALL_TEST_CASES);
+  renderTcList();
+  selectTestCase(tc.id);
+  renderRunnerSelects();
+  renderComparatorSelects();
+  document.getElementById('tc-count').textContent = ALL_TEST_CASES.length;
+};
+
+function collectTestCase() {
+  const tc = ALL_TEST_CASES.find(t => t.id === selectedTestCaseId);
+  if (!tc) return null;
+  // CM fields
+  const cm = {};
+  document.querySelectorAll('#tc-cm-fields .input-group').forEach(row => {
+    const k = row.querySelector('.field-key').value.trim();
+    const v = row.querySelector('.field-val').value.trim();
+    if (k) cm[k] = v === '' || v === 'null' ? null : isNaN(v) ? v : parseFloat(v);
+  });
+  // PEC fields
+  const pec = {};
+  document.querySelectorAll('#tc-pec-fields .input-group').forEach(row => {
+    const k = row.querySelector('.field-key').value.trim();
+    const v = row.querySelector('.field-val').value.trim();
+    if (k) pec[k] = v === '' || v === 'null' ? null : isNaN(v) ? v : parseFloat(v);
+  });
+  // Importance
+  const imp = {};
+  document.querySelectorAll('.importance-select').forEach(sel => { imp[sel.dataset.metric] = sel.value; });
+  // Array fields
+  const secCmRaw = document.getElementById('arr-security-cm').value;
+  const secPecRaw = document.getElementById('arr-security-pec').value;
+  const arrayFields = {
+    SECURITY_TYPE_CM: secCmRaw ? secCmRaw.split(',').map(s=>s.trim()).filter(Boolean) : [],
+    MANDATORY_SECURITY_OFFERED_PEC: secPecRaw ? secPecRaw.split('\n').filter(l=>l.trim()).map(l=>l.split(',').map(s=>s.trim()).filter(Boolean)) : [],
+    COMPANY_SECTOR_CM: document.getElementById('arr-sector-cm').value.trim(),
+    POSITIVE_SECTOR_PEC: document.getElementById('arr-sector-pec').value.split(',').map(s=>s.trim()).filter(Boolean),
+    HQ_LOCATION_STATE_CM: document.getElementById('arr-state-cm').value.trim(),
+    STATES_PEC: document.getElementById('arr-states-pec').value.split(',').map(s=>s.trim()).filter(Boolean),
+  };
+  let secMap = {};
+  try { secMap = JSON.parse(document.getElementById('tc-security-map').value || '{}'); } catch {}
+  const sf = parseFloat(document.getElementById('tc-scaling-factor').value) || 2;
+  return {
+    ...tc,
+    name: document.getElementById('tc-name').value,
+    description: document.getElementById('tc-desc').value,
+    companyMetrics: cm,
+    pecValues: pec,
+    pecImportance: imp,
+    constants: { SCALING_FACTOR: sf },
+    arrayFields,
+    securityValueMap: secMap,
+  };
+}
+
+window.saveCurrentTestCase = function() {
+  const tc = collectTestCase();
+  if (!tc) return;
+  ALL_TEST_CASES = saveTestCase(tc, ALL_TEST_CASES);
+  renderTcList();
+  renderRunnerSelects();
+  renderComparatorSelects();
+  toast('✓ Test case saved', 'success');
+};
+
+window.deleteCurrentTestCase = function() {
+  if (!selectedTestCaseId || !confirm('Delete this test case?')) return;
+  ALL_TEST_CASES = deleteTestCase(selectedTestCaseId, ALL_TEST_CASES);
+  selectedTestCaseId = null;
+  document.getElementById('tc-editor').classList.add('hidden');
+  document.getElementById('tc-editor-placeholder').classList.remove('hidden');
+  renderTcList();
+  renderRunnerSelects();
+  document.getElementById('tc-count').textContent = ALL_TEST_CASES.length;
+};
+
+window.runTestCase = function() {
+  const tc = collectTestCase();
+  if (!tc) return;
+  ALL_TEST_CASES = saveTestCase(tc, ALL_TEST_CASES);
+  showTab('runner');
+  document.getElementById('runner-tc-select').value = tc.id;
+  document.getElementById('runner-metric-select').value = 'ALL';
+  setTimeout(runTrace, 100);
+};
+
+// ── Runner ────────────────────────────────────────────────────────────────────
+function renderRunnerSelects() {
+  const sel = document.getElementById('runner-tc-select');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">-- Select Test Case --</option>';
+  ALL_TEST_CASES.forEach(tc => {
+    sel.innerHTML += `<option value="${tc.id}" ${tc.id===cur?'selected':''}>${escapeHtml(tc.name)}</option>`;
+  });
+  const msel = document.getElementById('runner-metric-select');
+  msel.innerHTML = '<option value="ALL">All Metrics</option>';
+  Object.keys(METRICS_CONFIG).forEach(m => {
+    const short = m.replace('PROBABILITY_','').replace('_METRIC','').replace(/_/g,' ');
+    msel.innerHTML += `<option value="${m}">${short}</option>`;
+  });
+}
+
+window.runTrace = function() {
+  const tcId = document.getElementById('runner-tc-select').value;
+  const metricFilter = document.getElementById('runner-metric-select').value;
+  if (!tcId) { toast('Please select a test case', 'error'); return; }
+  const tc = ALL_TEST_CASES.find(t => t.id === tcId);
+  if (!tc) return;
+  const result = calculateProbabilityScore(
+    METRICS_CONFIG, tc.companyMetrics || {}, tc.pecValues || {},
+    tc.pecImportance || {}, tc.constants || { SCALING_FACTOR: 2 },
+    tc.arrayFields || {}, tc.securityValueMap || {}
+  );
+  renderRunnerResults(result, metricFilter);
+};
+
+function renderRunnerResults(result, metricFilter) {
+  const scorePct = (result.finalScore * 100).toFixed(1);
+  const cls = result.finalScore >= 0.6 ? 'score-good' : result.finalScore >= 0.3 ? 'score-mid' : 'score-bad';
+  document.getElementById('runner-final-score').innerHTML = `<span class="${cls}">${scorePct}%</span>`;
+  document.getElementById('runner-score-breakdown').textContent =
+    `Base score: ${(result.probabilityScore*100).toFixed(1)}%  ×  Reduction: ${(result.reductionMultiplier*100).toFixed(1)}%`;
+  document.getElementById('runner-total-weight').textContent = result.totalWeight.toFixed(2);
+  document.getElementById('runner-reduction').textContent = (result.reductionMultiplier * 100).toFixed(1) + '%';
+  document.getElementById('runner-summary').classList.remove('hidden');
+
+  const traces = document.getElementById('runner-traces');
+  traces.innerHTML = '';
+  for (const [metricName, trace] of Object.entries(result.metricTraces)) {
+    if (metricFilter !== 'ALL' && metricName !== metricFilter) continue;
+    traces.appendChild(renderMetricTrace(metricName, trace));
+  }
+}
+
+function renderMetricTrace(metricName, trace) {
+  const short = metricName.replace('PROBABILITY_','').replace('_METRIC','').replace(/_/g,' ');
+  const card = document.createElement('details');
+  card.className = 'card';
+  if (trace.skipped) {
+    card.innerHTML = `<summary class="p-3 text-slate-500 text-sm">${short} — <span class="badge badge-skip">Skipped: ${trace.reason}</span></summary>`;
+    return card;
+  }
+  const score = trace.metricScore ?? 0;
+  const scorePct = (score * 100).toFixed(2);
+  const status = trace.STATUS?.pass;
+  const statusBadge = status === undefined ? '' : status
+    ? '<span class="badge badge-pass">✓ PASS</span>'
+    : '<span class="badge badge-fail">✗ FAIL</span>';
+  const importanceBadge = `<span class="badge badge-${(trace.importance||'').toLowerCase().replace(' ','-')}">${trace.importance}</span>`;
+  const compVal = trace.COMPANY_VALUE || '-';
+  const pecVal = trace.PEC_VALUE || '-';
+
+  let stepsHtml = '';
+  const steps = trace.SCORE?.steps || trace.MATCHED_CONFIG?.steps || [];
+  steps.forEach(step => {
+    const v = step.result;
+    const cls = v === null ? 'zero' : v > 0 ? 'good' : v < 0 ? 'bad' : 'zero';
+    stepsHtml += `<div class="step-row ${cls}">
+      <div class="text-xs text-slate-500">Step ${step.stepIndex}</div>
+      <div class="formula-step mt-0.5">${escapeHtml(step.formula)}</div>
+      ${step.processedFormula !== step.formula ? `<div class="text-xs text-slate-600 font-mono mt-0.5">→ ${escapeHtml(step.processedFormula)}</div>` : ''}
+      <div class="text-xs mt-0.5 ${v > 0 ? 'text-emerald-400' : v < 0 ? 'text-red-400' : 'text-slate-500'}">= ${v}</div>
+      ${step.error ? `<div class="text-xs text-red-400">Error: ${step.error}</div>` : ''}
+    </div>`;
+  });
+
+  // Security matching detail
+  let secHtml = '';
+  if (trace.MATCHED_CONFIG?.MATCHED) {
+    const m = trace.MATCHED_CONFIG.MATCHED;
+    const u = trace.MATCHED_CONFIG.UNMATCHED || [];
+    secHtml = `<div class="mt-2 text-xs"><span class="text-emerald-400">✓ Matched:</span> ${m.join(', ') || 'none'}</div>
+      <div class="text-xs"><span class="text-red-400">✗ Unmatched:</span> ${u.join(', ') || 'none'}</div>`;
+  }
+
+  card.innerHTML = `
+    <summary class="p-3 cursor-pointer hover:bg-slate-800 rounded-t-xl flex items-center gap-3">
+      <span class="font-medium text-white text-sm">${short}</span>
+      ${importanceBadge} ${statusBadge}
+      <span class="ml-auto text-sm font-mono ${score > 0.01 ? 'text-emerald-400' : 'text-slate-500'}">score: ${scorePct}%</span>
+      <span class="text-xs text-slate-500">w=${trace.weight.toFixed(2)} | reduction=${((trace.reductionMultiplierContribution??1)*100).toFixed(1)}%</span>
+    </summary>
+    <div class="p-4 border-t border-slate-700">
+      <div class="grid grid-cols-2 gap-4 mb-3 text-sm">
+        <div><span class="text-slate-500">Company value:</span> <span class="text-white font-medium">${compVal}</span></div>
+        <div><span class="text-slate-500">PEC requirement:</span> <span class="text-white font-medium">${pecVal}</span></div>
+      </div>
+      ${stepsHtml}
+      ${secHtml}
+      ${trace.SCORE?.error ? `<div class="text-red-400 text-xs mt-2">Error: ${trace.SCORE.error}</div>` : ''}
+    </div>`;
+  return card;
+}
+
+// ── Comparator ────────────────────────────────────────────────────────────────
+function renderComparatorSelects() {
+  const msel = document.getElementById('cmp-metric-select');
+  msel.innerHTML = '';
+  Object.keys(METRICS_CONFIG).forEach(m => {
+    const short = m.replace('PROBABILITY_','').replace('_METRIC','').replace(/_/g,' ');
+    msel.innerHTML += `<option value="${m}">${short}</option>`;
+  });
+  const tcsel = document.getElementById('cmp-tc-select');
+  const cur = tcsel.value;
+  tcsel.innerHTML = '<option value="ALL">All Test Cases</option>';
+  ALL_TEST_CASES.forEach(tc => {
+    tcsel.innerHTML += `<option value="${tc.id}" ${tc.id===cur?'selected':''}>${escapeHtml(tc.name)}</option>`;
+  });
+}
+
+window.loadComparatorMetric = function() {
+  const name = document.getElementById('cmp-metric-select').value;
+  comparatorMetricName = name;
+  const cfg = METRICS_CONFIG[name];
+  const formulas = cfg.SCORE?.formula || cfg.MATCHED_CONFIG?.formula || [];
+  comparatorModifiedFormulas = [...formulas];
+
+  // Original
+  document.getElementById('cmp-original-formulas').innerHTML =
+    formulas.map((f,i) => `<div class="formula-step">Step ${i+1}: ${escapeHtml(f)}</div>`).join('');
+
+  // Modified (editable inputs)
+  const el = document.getElementById('cmp-modified-formulas');
+  el.innerHTML = '';
+  formulas.forEach((f, i) => {
+    const row = document.createElement('div');
+    row.className = 'flex gap-2 items-start';
+    row.innerHTML = `<span class="text-slate-500 text-xs mt-2 flex-shrink-0">Step ${i+1}:</span>
+      <input type="text" class="cmp-formula-input flex-1 px-2 py-1.5 text-xs font-mono rounded-lg bg-slate-900 border border-slate-700 text-cyan-300 outline-none focus:border-indigo-500"
+        value="${escapeHtml(f)}" data-step="${i}" oninput="comparatorModifiedFormulas[${i}] = this.value">`;
+    el.appendChild(row);
+  });
+  document.getElementById('cmp-results').classList.add('hidden');
+};
+
+window.resetComparatorFormula = function() { loadComparatorMetric(); };
+
+window.runComparison = function() {
+  const metricName = document.getElementById('cmp-metric-select').value;
+  const tcFilter = document.getElementById('cmp-tc-select').value;
+  if (!metricName) { toast('Select a metric', 'error'); return; }
+
+  const tcs = tcFilter === 'ALL' ? ALL_TEST_CASES : ALL_TEST_CASES.filter(t => t.id === tcFilter);
+  if (!tcs.length) { toast('No test cases available', 'error'); return; }
+
+  // Build modified config
+  const cfg = METRICS_CONFIG[metricName];
+  const modifiedCfg = JSON.parse(JSON.stringify(cfg));
+  if (modifiedCfg.SCORE) modifiedCfg.SCORE.formula = comparatorModifiedFormulas;
+  else if (modifiedCfg.MATCHED_CONFIG) modifiedCfg.MATCHED_CONFIG.formula = comparatorModifiedFormulas;
+
+  const rows = [];
+  tcs.forEach(tc => {
+    const origConfig = { ...METRICS_CONFIG };
+    const newConfig = { ...METRICS_CONFIG, [metricName]: modifiedCfg };
+    const origResult = calculateProbabilityScore(origConfig, tc.companyMetrics||{}, tc.pecValues||{}, tc.pecImportance||{}, tc.constants||{SCALING_FACTOR:2}, tc.arrayFields||{}, tc.securityValueMap||{});
+    const newResult = calculateProbabilityScore(newConfig, tc.companyMetrics||{}, tc.pecValues||{}, tc.pecImportance||{}, tc.constants||{SCALING_FACTOR:2}, tc.arrayFields||{}, tc.securityValueMap||{});
+    const origScore = origResult.metricTraces[metricName]?.metricScore ?? 0;
+    const newScore = newResult.metricTraces[metricName]?.metricScore ?? 0;
+    rows.push({ tc, origScore, newScore, delta: newScore - origScore });
+  });
+
+  renderComparisonResults(rows, metricName);
+};
+
+function renderComparisonResults(rows, metricName) {
+  const body = document.getElementById('cmp-table-body');
+  body.innerHTML = '';
+  rows.forEach(({ tc, origScore, newScore, delta }) => {
+    const deltaStr = (delta >= 0 ? '+' : '') + (delta * 100).toFixed(2) + '%';
+    const cls = delta > 0.001 ? 'diff-better' : delta < -0.001 ? 'diff-worse' : 'diff-same';
+    body.innerHTML += `<tr class="hover:bg-slate-800">
+      <td class="py-2 pr-4">${escapeHtml(tc.name)}</td>
+      <td class="py-2 pr-4 font-mono">${(origScore*100).toFixed(2)}%</td>
+      <td class="py-2 pr-4 font-mono">${(newScore*100).toFixed(2)}%</td>
+      <td class="py-2"><span class="${cls}">${deltaStr}</span></td>
+    </tr>`;
+  });
+
+  // Chart
+  if (rows.length > 0) {
+    const wrap = document.getElementById('cmp-chart-wrap');
+    wrap.classList.remove('hidden');
+    if (cmpChart) cmpChart.destroy();
+    const ctx = document.getElementById('cmp-chart').getContext('2d');
+    cmpChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: rows.map(r => r.tc.name.slice(0, 20)),
+        datasets: [
+          { label: 'Original', data: rows.map(r => +(r.origScore*100).toFixed(2)), backgroundColor: '#6366f188' },
+          { label: 'New', data: rows.map(r => +(r.newScore*100).toFixed(2)), backgroundColor: '#10b98188' },
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#94a3b8' } } },
+        scales: {
+          x: { ticks: { color: '#94a3b8' }, grid: { color: '#1e293b' } },
+          y: { ticks: { color: '#94a3b8' }, grid: { color: '#334155' }, title: { display: true, text: 'Score (%)', color: '#64748b' } }
+        }
+      }
+    });
+  }
+  document.getElementById('cmp-results').classList.remove('hidden');
+}
+
+// ── New Metric ────────────────────────────────────────────────────────────────
+function addInitialStep() { addNewMetricStep('(MY_VALUE_CM - MINIMUM_MY_VALUE_PEC) / abs(MINIMUM_MY_VALUE_PEC) * 100'); }
+
+window.addNewMetricStep = function(defaultVal = '') {
+  const container = document.getElementById('new-metric-steps');
+  const i = container.children.length + 1;
+  const row = document.createElement('div');
+  row.className = 'flex gap-2 items-start';
+  row.innerHTML = `<span class="text-slate-500 text-xs mt-2 flex-shrink-0">Step ${i}:</span>
+    <input type="text" class="new-metric-formula flex-1 px-2 py-1.5 text-xs font-mono rounded-lg bg-slate-900 border border-slate-700 text-cyan-300 outline-none focus:border-indigo-500" value="${escapeHtml(defaultVal)}" placeholder="formula expression">
+    <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-red-400 mt-1 text-lg">×</button>`;
+  container.appendChild(row);
+};
+
+window.saveNewMetric = function() {
+  const name = document.getElementById('new-metric-name').value.trim();
+  const importanceKey = document.getElementById('new-metric-importance-key').value.trim();
+  const strategy = document.getElementById('new-metric-strategy').value;
+  const suffix = document.getElementById('new-metric-suffix').value.trim();
+  const cmField = document.getElementById('new-metric-cm-field').value.trim();
+  const pecField = document.getElementById('new-metric-pec-field').value.trim();
+  const formulas = [...document.querySelectorAll('.new-metric-formula')].map(i => i.value.trim()).filter(Boolean);
+  if (!name || formulas.length === 0) { toast('Name and at least one formula step are required', 'error'); return; }
+  const cfg = {
+    SCORE: { evaluationStrategy: strategy, formula: formulas, fields: [cmField, pecField, 'SCALING_FACTOR'].filter(Boolean) },
+    COMPANY_VALUE: { evaluationStrategy: 'PREFIX_SUFFIX_STRING', prefix: '', suffix, fields: [cmField].filter(Boolean), keyToConcat: [cmField].filter(Boolean) },
+    PEC_VALUE: { evaluationStrategy: 'PREFIX_SUFFIX_STRING', prefix: '', suffix, fields: [pecField].filter(Boolean), keyToConcat: [pecField].filter(Boolean) },
+    IMPORTANCE_OF_METRIC_FROM_PEC: { evaluationStrategy: 'PREFIX_SUFFIX_STRING', fields: [importanceKey].filter(Boolean), keyName: importanceKey, keyToConcat: [importanceKey].filter(Boolean) },
+  };
+  METRICS_CONFIG[name] = cfg;
+  saveMetricOverride(name, cfg);
+  renderMetricList();
+  document.getElementById('metric-count').textContent = Object.keys(METRICS_CONFIG).length;
+  toast(`✓ Metric "${name}" added`, 'success');
+  showTab('metrics');
+  setTimeout(() => selectMetric(name), 100);
+};
+
+// ── Import / Export ────────────────────────────────────────────────────────────
+window.exportAllData = function() { exportAll(ALL_TEST_CASES); };
+window.importAllData = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      importAll(e.target.result);
+      loadData().then(() => toast('✓ Imported successfully', 'success'));
+    } catch(err) { toast('✗ Import failed: ' + err.message, 'error'); }
+  };
+  reader.readAsText(file);
+};
+
+// ── Utilities ────────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+let toastTimeout;
+function toast(msg, type = 'info') {
+  let el = document.getElementById('toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'toast';
+    el.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;z-index:1000;transition:all 0.3s;';
+    document.body.appendChild(el);
+  }
+  const colors = { success: 'background:#065f46;color:#6ee7b7', error: 'background:#7f1d1d;color:#fca5a5', info: 'background:#1e3a5f;color:#93c5fd' };
+  el.style.cssText += ';' + (colors[type]||colors.info);
+  el.textContent = msg;
+  el.style.opacity = '1';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => { el.style.opacity = '0'; }, 3000);
+}
+
+// ── Bootstrap ─────────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadData();
+  showTab('metrics');
+  // Add initial new metric step
+  addInitialStep();
+  // Add initial comparator
+  setTimeout(() => { loadComparatorMetric(); }, 500);
+});
+</script>
+</body>
+</html>
